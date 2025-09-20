@@ -37,11 +37,16 @@ Each row reflects the salary of a white house employee and detailee, which is a 
 Write code to calculate the mean and median of the salaries in the dataset using the `summarize()` function. You don't need to make a new dataframe, just display the results.
 
 ```{r}
-wh_salaries |>
-  #mutate(salary = as.numeric(salary)) |>
+wh_salaries_clean <- wh_salaries |>
+  mutate(salary= as.numeric(gsub(",", "", salary)))
+```
+
+
+```{r}
+wh_salaries_clean |>
   summarise(
-    mean_salary = mean(salary),
-    median_salary = median(salary)
+     mean_salary   = mean(salary, na.rm = TRUE),
+    median_salary = median(salary, na.rm = TRUE),
   )
 ```
 
@@ -50,12 +55,12 @@ wh_salaries |>
 Take the code you just wrote and add in the minimum and maximum salaries (the functions for that are `min()` and `max()`). Your results should show four columns: mean_salary, median_salary, min_salary, max_salary.
 
 ```{r}
-wh_salaries |>
+wh_salaries_clean |>
   summarise(
-    mean_salary = mean(salary),
-    median_salary = median(salary),
-    max_salary = max(salary),
-    min_salary = min(salary)
+    mean_salary = mean(salary, na.rm= TRUE),
+    median_salary = median(salary, na.rm= TRUE),
+    max_salary = max(salary, na.rm=TRUE),
+    min_salary = min(salary, na.rm=TRUE)
   )
 ```
 
@@ -63,9 +68,10 @@ wh_salaries |>
 
 Write a couple of sentences describing the results of your analysis. What do the mean and median salaries tell you about the data? What do the minimum and maximum salaries tell you? Are there any outliers in the data?
 
-The max salary was 251,258 but my code gave me 99,315. Even when i order the data set 99,315 is the top number, I had to scroll to see the true maximum salary. The minimum salary is correct, some people were paid zero dollars, according to the data. I can't determine if they're outliers because I do not have a median and mean to compare. The problem I was trying to figure out, and what I need help with, is converting a character data type to a numeric data type. 
+The max salary was 251,258 but my code initially gave me 99,315. Even when i order the data set 99,315 is the top number, I had to scroll to see the true maximum salary. So I mutated a new data set without the commas in the salary column. I used AI to figure out the code. According to the minimum salary, some people were paid zero dollars, according to the data. The fact that my mean is significantly lower than the median suggests that there are low salaries pulling the average down. 
 
 ### Task 7: Story Idea
 
 Based on the data, what is your best story idea? What is the next step you would take to develop that story idea?
-Out of the 11 people paid zero dollars, 7 were detailee and 4 employees of the white house. The highest paid person also a detailee. My best story idea would investigate why this title has inconsistent compensation. Are the zero-dollar detailees volunteers from other agencies? Or personnel whose salaries are covered elsewhere? Or unpaid White House interns holding the "detailee" title? What specific high-level role warrants the top salary for a detailee, and how does that role contrast with the unpaid positions? So far, I can see that BARRANS, MICHELLE M., paid 251,258, served as Associate Counsel. The other detailees paid zero dollars also served advisory roles. So the next steps would be talking to people familiar with how the White house staffing works to get answers to these questions. 
+
+Out of the 11 people paid zero dollars, 7 were detailee and 4 employees of the white house. The highest paid person also a detailee. My best story idea would investigate why this title has inconsistent compensation. Are the zero-dollar detailees volunteers from other agencies? Or personnel whose salaries are covered elsewhere? Or unpaid White House interns holding the "detailee" title? What specific high-level role warrants the top salary for a detailee, and how does that role contrast with the unpaid positions? So far, I can see that BARRANS, MICHELLE M., paid 251,258, served as Associate Counsel. The other detailees paid zero dollars also served advisory roles. So the next steps would be talking to people familiar with how the White house staffing works to get answers to where their salaries are recorded. 
