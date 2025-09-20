@@ -49,7 +49,7 @@ crimes_with_rates |>
 
 Write a few sentences about what you found in the data. What years had the highest crime rates? What years had the lowest crime rates? Does the pattern match your expectations?
 
-** The data tells me that violent crime has been on a steady decline of atleast less than 50% in pg county since the 2010s. Yes it matches my expectations that while crime isn't non-existent in the county, it is far from a violent one. 
+** The data tells me that violent crime has been on a steady decline of at least less than 50% in pg county since the 2010s. Yes it matches my expectations that while crime isn't non-existent in the county, it is far from a violent one. 
 
 
 When you are done, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
