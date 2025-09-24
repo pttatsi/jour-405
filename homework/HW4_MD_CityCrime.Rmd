@@ -51,12 +51,16 @@ md_cities_change <- md_crime_rates |>
 mutate (
   violent_per_change = (violent_rate_2020 - violent_rate_2019) / violent_rate_2019 * 100,
   property_per_change = (property_rate_2020 - property_rate_2019) / property_rate_2019 * 100
-)
-
-md_cities_change |>
-arrange(desc(property_per_change), (desc(violent_per_change)), (desc(violent_rate_2019)), (desc(property_rate_2019)), (desc(violent_rate_2020)), (desc(property_rate_2020)))
+) 
 
 ```
+
+
+```{r}
+md_cities_change |>
+arrange(desc(property_per_change), (desc(violent_per_change)), (desc(violent_rate_2019)), (desc(property_rate_2019)), (desc(violent_rate_2020)), (desc(property_rate_2020)))
+```
+
 
 ### Task 7: Describe Percentage Changes
 
