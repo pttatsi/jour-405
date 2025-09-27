@@ -28,10 +28,10 @@ Calculate violent and property crime rates for each city for both years using `m
 md_crime_rates <- md_cities |>
   group_by(city) |>
 mutate(
-  violent_rate_2019 = violent2019 / pop2019 * 100000,
-  property_rate_2019 = property2019 / pop2019 * 100000,
-  violent_rate_2020 = violent2020 / pop2020 * 100000,
-  property_rate_2020 = property2020 / pop2020 * 100000
+  violent_rate_2019 = violent2019 / pop2019 * 10000,
+  property_rate_2019 = property2019 / pop2019 * 10000,
+  violent_rate_2020 = violent2020 / pop2020 * 10000,
+  property_rate_2020 = property2020 / pop2020 * 10000
 )
 ```
 
@@ -79,3 +79,40 @@ Nutgraf: Though many Maryland municipalities reported stable or even declining c
 ### Task 9: Save Your Work and Put it on GitHub
 
 Save this notebook, then commit it to your local repository. Push the changes to your GitHub repository and submit the URL for this file in ELMS.
+
+### Task 10: Percentiles
+
+## Q1: Using the 2020 violent crime rate, calculate the percentiles using `ntile()`. Save the results to a new dataframe called `md_cities_percentiles`. How many cities are above the 90th percentile?  ***A1 There are zero cities above the 90th percentile which supports our thesis that violent crime has been on a considerably low in Maryland cities. 
+
+```{r}
+glimpse(md_cities_change)
+```
+
+```{r}
+md_cities_percentiles <- md_cities_change  |>
+mutate(percentile = ntile(violent_rate_2020, 100)) |>
+arrange(desc(violent_rate_2020))
+
+md_cities_percentiles
+```
+
+
+## Q2:Calculate the Interquartile Range of the 2020 violent crime rate using `summarize()` and R's `IQR()` function. The syntax is similar to how `mean()` works. ***A2 There's low variability in this dataset
+
+```{r}
+md_cities_percentiles |>
+summarise(
+   iqr_violent_2020 = IQR(violent_rate_2020, na.rm = TRUE)
+)
+```
+```{r}
+md_cities_percentiles |>
+summarise(
+   iqr_violent_2020 = IQR(property_rate_2020, na.rm = TRUE)
+)
+```
+
+## Q3: Do the results change your best story idea from the previous assignment? Why or why not?
+
+***A3 No because my best idea from the previous assignment focused on the rise of property crime in Ocea City, which holds as an individual case that is beliavable considering the level of tourism in the city. It did not focus on the general rise of crime in Maryland cities, i think there's a difference there. 
+
