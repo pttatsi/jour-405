@@ -1,0 +1,67 @@
+---
+title: "Sampling_Demo"
+---
+
+Follow along with the demo to learn how to sample data from a population using R and the Tidyverse. You should get started by loading the tidyverse in a new R block.
+
+### Task 1: Load the tidyverse
+```{r}
+library(tidyverse)
+```
+
+
+
+### Task 2: Load 100 rows of data with the ages of people from 12-30
+```{r}
+
+set.seed(42)
+younguns <- tibble(
+  age = sample(12:30, 100, replace = TRUE)
+)
+
+head(younguns)
+
+```
+
+
+
+### Task 3: Sample 50 or 10 rows of data 
+```{r}
+sample_50 <-younguns |> 
+  sample_n(50)
+
+sample_10 <-younguns |> 
+  sample_n(10)
+```
+
+
+### Task 4: Calculate the mean age and standard deviation of the sample
+#50 sample
+```{r}
+sample_50 |> summarize(mean = mean(age), median = median(age), sd = sd(age))
+```
+
+#10 sample
+```{r}
+
+sample_10 |> summarize(mean = mean(age), median = median(age), sd = sd(age))
+```
+
+
+
+### Task 5: Calculate the mean age and standard deviation of the population
+```{r}
+younguns |> summarize(mean = mean(age), median = median(age), sd = sd(age))
+```
+
+#Nerd bonus: Skew!
+
+```{r}
+younguns |> 
+ summarize(
+   mean = mean(age), 
+   sd = sd(age), 
+   median = median(age)) |> 
+ mutate(skew = 3*(mean-median)/sd)
+```
+
