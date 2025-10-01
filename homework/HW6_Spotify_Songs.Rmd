@@ -40,8 +40,8 @@ Write code to create a histogram of the danceability scores in the Spotify datas
 ```{r}
 spotify_songs |> 
   ggplot() + 
-  geom_histogram(aes(x = danceability), binwidth = 2) +
-  labs(title = Danceability of Spotify Songs)
+  geom_histogram(aes(x = danceability), binwidth = .01) +
+  labs(title = "Danceability of Spotify Songs", x = "Danceability Score", y = "Number of Songs")
 ```
 
 ### Task 5: Add a line to the histogram for the mean danceability score
