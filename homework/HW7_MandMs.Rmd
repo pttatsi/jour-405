@@ -28,7 +28,6 @@ sample_5_red <-m_and_m |>
 sample_5_red |> summarize(mean = mean(red), median = median(red), sd = sd(red))
 ```
 
-
 ### Task 5: Calculate the mean age and standard deviation of the population, using the same measure as in Task 4
 
 ```{r}
