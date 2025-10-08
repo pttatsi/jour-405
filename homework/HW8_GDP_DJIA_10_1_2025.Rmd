@@ -62,7 +62,7 @@ _______________________________________________________________________________
 
 #Part 2: GDP and DJIA
 
-What is the relationship between the stock market, represented by the Dow Jones Industrial Average, or DJIA, and the Gross Domestic Product, a measure of the U.S. economic activity?
+What is the relationship between the stock market, represented by the Dow Jones Industrial Average, or DJIA, and the Gross Domestic Product, a measure of the U.S. economic activity? 
 
 You will examine that question for the past decade, from 2013 through 2024.
 
@@ -73,6 +73,7 @@ Your task in this assignment will be to examine the relationship between those t
 ### Task 1: Load the tidyverse
 
 ```{r}
+library(tidyverse)
 ```
 
 ### Task 2: Load the GDP and DJIA data
@@ -80,6 +81,7 @@ Your task in this assignment will be to examine the relationship between those t
 Load the GDP data from https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/gdp_djia.csv
 
 ```{r}
+gdp_data <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/gdp_djia.csv")
 ```
 
 ### Task 3: Calculate the correlation coefficient
@@ -87,6 +89,7 @@ Load the GDP data from https://raw.githubusercontent.com/dwillis/jour405/refs/he
 Use the `cor()` function to calculate the correlation coefficient between the DJIA and GDP.
 
 ```{r}
+gdp_data |> summarize(correlation = cor(DJIA, GDP, method="pearson"))
 ```
 
 ### Task 4: Create a scatterplot
@@ -94,12 +97,18 @@ Use the `cor()` function to calculate the correlation coefficient between the DJ
 Use the `ggplot()` function to create a scatterplot of the DJIA and GDP. Be sure to label your axes and add a title.
 
 ```{r}
+gdp_data |> 
+  ggplot() +
+  geom_point(aes(x=GDP, y=DJIA)) +
+  geom_smooth(aes(x=GDP, y=DJIA), method="lm") +
+ labs(title = "Measure of US Economic Activity", x = " Dow Jones Industrial Average", y = "Gross Domestic Product")
 ```
 
 ### Task 5: Describe our results
 
 Write a few sentences about the relationship between the DJIA and GDP. Is there a strong correlation between the two variables? What does the scatterplot show?
 
+There is a positive correlation between the DJIA and GDP, the move in tandem to one another. Visually, it looks like they used to be more tightly related in the mid-2010s and have spread further apart since then. This might be due to factors  such as inflation that distorts the relationship of the two varibales. 
 
 When you are done, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
 
