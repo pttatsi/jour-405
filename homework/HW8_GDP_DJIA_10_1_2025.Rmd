@@ -49,7 +49,6 @@ matches |> summarize(correlation = cor(fouls, goal_diff, method="pearson"))
 ### Task 5: Create a scatterplot of fouls and goal differential, using `geom_point()`
 
 ```{r}
-
 matches |> 
   ggplot() +
   geom_point(aes(x=goal_diff, y=fouls)) +
@@ -73,6 +72,7 @@ Your task in this assignment will be to examine the relationship between those t
 ### Task 1: Load the tidyverse
 
 ```{r}
+library(tidyverse)
 ```
 
 ### Task 2: Load the GDP and DJIA data
@@ -80,6 +80,7 @@ Your task in this assignment will be to examine the relationship between those t
 Load the GDP data from https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/gdp_djia.csv
 
 ```{r}
+data_cor <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/gdp_djia.csv")
 ```
 
 ### Task 3: Calculate the correlation coefficient
@@ -87,6 +88,7 @@ Load the GDP data from https://raw.githubusercontent.com/dwillis/jour405/refs/he
 Use the `cor()` function to calculate the correlation coefficient between the DJIA and GDP.
 
 ```{r}
+data_cor |> summarize(correlation = cor(GDP, DJIA, method="pearson"))
 ```
 
 ### Task 4: Create a scatterplot
@@ -94,6 +96,10 @@ Use the `cor()` function to calculate the correlation coefficient between the DJ
 Use the `ggplot()` function to create a scatterplot of the DJIA and GDP. Be sure to label your axes and add a title.
 
 ```{r}
+data_cor|> 
+  ggplot() +
+  geom_point(aes(x=GDP, y=DJIA)) +
+  geom_smooth(aes(x=GDP, y=DJIA), method="lm")
 ```
 
 ### Task 5: Describe our results
