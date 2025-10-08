@@ -51,18 +51,21 @@ m_and_m |>
  mutate(skew = 3*(mean-median)/sd)
 ```
 
+```{r}
+m_and_m |>
+summarize(mean = mean(black), median = median(black), sd = sd(black))
+```
 
 ### Task 6: Compare the sample and population statistics
 
 Compare the two sets of means and standard deviations. Are they similar? 
 
-For the sample_5_red, the median is lower than the mean, indicating that the data set is slightly positively skewed. This means that while most samples had a lower number of red M&Ms, a few had much higher counts, skewing the mean upward. For the entire sample of the red population, the mean and median are almost identical, an indication that the data is almost normally distributed, meaning that the counts of red M&Ms are fairly evenly distributed across samples, with no extreme skew in either direction. 
+For the sample_5_red, the median is lower than the mean, which indicates that the data set is slightly positively skewed. This means that while most samples had a lower number of red M&Ms, a few had much higher counts, skewing the mean upward. For the entire sample of the red population, the mean and median are almost identical, an indication that the data is almost normally distributed, meaning that the counts of red M&Ms are fairly evenly distributed across rows, with no extreme skew in either direction. 
 
 ### Task 7: Describe the results
 
 Write a few sentences about what you found in the data. What does this tell you about the M&Ms dataset and about the act of random sampling?
 
-The sd of both samples also supports this because sample_5_red's larger sd shows a tighter cluster around the mean than the larger population's whose deviation was more spread. 
-
+The sd of both samples also supports this because sample_5_red's larger sd shows a tighter cluster around the mean than the larger sample has more rows with similar counts than ones with high outliers. This tells me that random sampling works best at finding patterns and the effect of one variable on a set on a larger sample than it does on a smaller sample. This also tells me that while I might eat more red, no color significantly outweighs the other from a bag of red and black m&m's. 
 
 When finished, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
