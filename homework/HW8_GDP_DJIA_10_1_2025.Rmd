@@ -106,6 +106,7 @@ labs(title = "Relationship Between DJIA and GDP", x = "GDP", y = "DJIA")
 ### Task 5: Describe our results
 
 Write a few sentences about the relationship between the DJIA and GDP. Is there a strong correlation between the two variables? What does the scatterplot show?
+
 The scatterplot reveals a strong relationship between the DJIA and GDP, they are positively related as they move in tandem throughout the years. It can also be assumed or theorized that both variables are affected by the same factors such as inflation. 
 
 When you are done, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
