@@ -1,0 +1,180 @@
+---
+title: "midterm_key_oct_8"
+author: "Rob Wells"
+date: "2025-10-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# JOUR405: Statistics for Journalists
+## Midterm Exam - Fall 2025
+
+For this exam, you'll analyze several datasets using R and the statistical concepts we've covered in class. Load the tidyverse before beginning, then complete each task. Write your code in the provided blocks and answer the questions in complete sentences.
+
+# Load tidyverse
+```{r}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(stringr)
+```
+
+## Part 1: Restaurant Health Inspections (25 points)
+
+The first dataset contains restaurant health inspection scores from Montgomery County. Load the data from: `https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/montco_inspections.csv`
+
+The dataset includes the name of the establishment, the number of points for critical and non-critical areas, the total points, maximum points possible and the compliance score and grade.
+
+## Task 1: Read the data**
+```{r}
+#your code here
+
+health_scores_mc <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/montco_inspections.csv")
+```
+
+
+## Task 2: Calculate the mean and standard deviation maximum and minimum of compliance scores. Put the results in a new dataframe called "compliance_stats." 
+```{r}
+#your code here
+health_scores_mc |>
+  summarise(
+    mean_compliance_score   = mean(compliance_score, na.rm = TRUE),
+    median_compliance_score = median(compliance_score, na.rm = TRUE),
+    max_compliance_score = max(compliance_score, na.rm=TRUE),
+    min_compliance_score = min(compliance_score, na.rm=TRUE), 
+    sd= sd(compliance_score)
+  )
+```
+
+## Task 3: Create a histogram of the compliance scores with a vertical line showing the mean. Include a headline. Include a headline and label the x and y axes.
+
+```{r}
+health_scores_mc |> 
+ ggplot(aes(x = compliance_score)) +
+  geom_histogram(binwidth = 4, fill = "blue", color = "black") +
+  geom_vline(aes(xintercept = mean(compliance_score)), color = "red", linetype = "dashed") +
+  geom_vline(aes(xintercept = mean(compliance_score) + sd(compliance_score)), color = "orange", linetype = "dashed") +
+  geom_vline(aes(xintercept = mean(compliance_score) - sd(compliance_score)), color = "orange", linetype = "dashed") +
+  labs(title = "Compliance Scores For Montgomery County Restaurants", x = "Compliance Score", y = "Number of Resturants")
+```
+
+
+## Task 4: Write 2-3 sentences interpreting what the standard deviation and histogram tell us about the distribution of compliance scores. What would be newsworthy about this distribution? What's the story here? 
+
+**Write your answer here:** The histogram visually shows that most of the restaurants had a high compliance score because the right tail is larger/fatter than the left. The story here is that Montgomery County resturants are clean and comply with city health codes. 
+
+
+## Part 2: High School Athletics (30 points)
+
+The second dataset shows participation numbers in high school sports across Maryland counties in 2024, broken down by sport and gender. Load the data from: `https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_hs_participation.csv`
+
+# Task 5: Load the high school participation data
+```{r}
+#your code here
+
+hs_athletics <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_hs_participation.csv")
+```
+
+
+#Task 6: Add two columns called total and girls_pct.  
+Add two columns called total and girls_pct using mutate(), with the total adding together boys and girls and girls_pct being the percentage of the total represented by girls participants. 
+```{r}
+#your code here
+hs_athletics |>
+mutate (
+  total= boys + girls, 
+   girls_pct = (girls / total) * 100)
+```
+
+#Task 7: Calculate correlation between boys and girls participation
+```{r}
+#your code here
+hs_athletics |> summarize(correlation = cor(boys, girls, method="pearson"))
+```
+
+#Task 8: Create a scatterplot showing this relationship, adding a line of best fit. Include a headline and label the x and y axes.
+```{r}
+#your code here
+hs_athletics |> 
+  ggplot() +
+  geom_point(aes(x=girls, y=boys)) +
+  geom_smooth(aes(x=girls, y=boys), method="lm") +
+  labs(title = "Relationship Between Boys and Girls Participation", x = "Girls", y = "Boys") +
+  expand_limits(x = 0, y = 0)
+```
+
+
+# Task 9: In 2-3 sentences, explain what the correlation coefficient and scatterplot reveal about gender equity in Maryland high school sports participation. How do you interpret the school districts that are below the line vs those that are above? Which school districts are most worth examining further, and why? (10 points)
+
+**Write your answer here:** The correlation between girls and boys participation shows an almost perfect correlation which reveals that as boys’ participation increases, girls’ participation will increase proportionally. The school districts above the line show higher participation with girls while those below the line have higher participation with boys. Districts that fall furtherest from the line are worth examining to understand what barriers students are facing. 
+
+## Part 3: Maryland Car Theft Rates (25 points)
+
+Your editor has assigned you a story about car thefts in Maryland and wants you to analyze the data to find out which counties have the highest rates. The fourth dataset contains car theft statistics for Maryland counties in 2023 and population. Load the data from: `https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_car_thefts.csv` and complete the following tasks:
+
+#Task 10: Load the car thefts data
+```{r}
+#your code here
+car_thefts_md <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_car_thefts.csv")
+
+```
+```{r}
+cleaned_car_thefts_md <- car_thefts_md |>
+   clean_names() |>
+  rename( thefts_2022 = x2022, thefts_2023= x2023)
+```
+
+#Task 11: Using mutate, add a column that calculates the rate of car thefts for each county - you need to choose the per capita rate 
+```{r}
+#your code here
+car_thefts_md_rates <- cleaned_car_thefts_md |>
+  group_by(county) |>
+mutate(
+  car_theft_rate_2022 = thefts_2022 / population * 1000,
+  car_theft_rate_2023 = thefts_2023 / population * 1000)
+```
+
+#Task 12: Calculate the median car theft rate and the total number of car thefts statewide. Which counties have rates above the median? 
+```{r}
+#your code here
+car_thefts_md_rates |>
+  summarise( 
+    median_car_theft_2022 = median(car_theft_rate_2022, na.rm = TRUE),
+    median_car_theft_2023 = median(car_theft_rate_2023, na.rm = TRUE), 
+    total_statewide_23 = sum(thefts_2023)
+ )
+
+```
+
+
+#Task 13: Write 2-3 sentences describing what these calculations reveal about the distribution of car thefts in Maryland. What's the lede of a story about your findings? 
+
+**Write your answer here:** 
+
+## Part 4: Data Analysis Scenario (20 points)
+
+#Task 14: Essay Question.
+
+You receive a tip that local emergency response times have gotten significantly worse over the past year. You obtain monthly data on response times for police, fire and ambulance calls.
+
+Write 3-4 sentences explaining:
+1. What statistical measures would you calculate to verify this claim? (10 points)
+2. What visualizations would help readers understand the trends? (5 points)
+3. What additional context or data would you need to make this a complete story? (5 points)
+
+**Write your answer here:** I would calculate measures of central tendency (mean and median response times) and dispersion (standard deviation and range) for each service by month to see if they're outliers or variables making it seem like response times have gotten worse. I would try to find the variables that could cause these and try and find correlation as well. A scatterplot is best suited for to show the trends to readers.  
+
+# Excellent Response
+
+
+### Submission Instructions
+- Save your work frequently
+- Make sure all code blocks run without errors
+- Provide clear explanations for your analytical choices
+- Submit both your code and written responses
+- Load this test to GitHub and submit the link in Elms
+
+Good luck!

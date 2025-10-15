@@ -1,0 +1,380 @@
+---
+title: "Class Reference"
+author: "Derek Willis"
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Consider this a personal guide to the commands and functions you will learn. In general, when you come across an R command or function that you want to remember, put it in here along with a description of what it does and when you'd use it.
+
+### How to set the working directory
+
+The command to set a working directory is setwd(). For example, this sets the working directory to a directory called data_journalism_2024_fall inside a directory called jour472 located inside your home directory (the \~ is equivalent of /Users/[youruser] on a Mac).
+
+IMPORTANT or you WILL go insane: - remember quotations "" '' around variables
+
+## Concepts:
+
+### Continuous vs Categorical data
+
+\*\*\*Continuous data places no limits on values, it can take any value within any range so a person's height or weight. While categorical data simply refers to things/data sorted into bins, whether physical or theoretical. For example, humans are sorted into categories of female and male
+
+### Central Tendancy
+
+\*\*\* The mean is the most common measure
+
+------------------------------------------------------------------------
+
+### Mean, Median, and Mode
+
+\*\*\* Distribution is equal when mean and median are equal \*\*\* The mode is the most occuring value in the data set
+
+### Standard Deviation and Normal Distributions
+
+------------------------------------------------------------------------
+
+\*\* Standard deviation measures the dispersion or spread of data around the mean
+
+\*\*\* A low standard deviation means that the data values are all clustered closely together, or "tightly grouped," around the mean (average) of the data set. This indicates low variability or less spread in the data, making the data more precise and reliable
+
+\*\*\* A high standard deviation means the data points are spread out over a wider range of values and are generally far from the mean (average). This indicates a high variability in the dataset.
+
+\*\*\* Normal Distribution is equal on both sides of the mean \*\*\*Approximately 90% of data lies within 2 standard deviation of the mean
+
+------------------------------------------------------------------------
+
+### Variance and Outliers
+
+\*\*\* Variance is important so you have a complete picture of a community.
+
+------------------------------------------------------------------------
+
+### Skews
+
+\*\* Measures the asymmetry of the data's distribution; characteristic of the distribution's shape, while standard deviation is a measure of its spread.
+
+\*\*\* Describes whether the data is more concentrated on the left or the right tail
+
+\*\*\* **Zero skew:** The distribution is perfectly symmetrical, like a normal distribution. 
+
+\*\*\* **Positive skew:** The right tail is longer or fatter than the left tail, and the mean is typically greater than the median. 
+
+\*\*\* **Negative skew:** The left tail is longer or fatter than the right tail, and the mean is typically less than the median.A negative skewness means a left skew.
+
+\*\*If the mean is below the median, data generally skews to the left.
+
+\*\*If the mean is above the median, data generally skews to the right.
+
+------------------------------------------------------------------------
+
+### Interquartile Range
+
+The **IQR** measures how *spread out* the *middle 50%* of your data is— how much variability there is in the central part of your dataset.
+
+-   It **ignores extreme values** (outliers) — focuses on the central spread
+
+-   Commonly used to **detect outliers**:
+
+    -   Lower bound = Q1 − 1.5 × IQR
+
+    -   Upper bound = Q3 + 1.5 × IQR
+
+        -   Any value outside these bounds is often considered an *outlier*
+
+### How it’s calculated:
+
+**Order** the data from smallest to largest.
+
+1.  Find the **first quartile (Q1)** — the value at the 25th percentile (one-quarter of the way up).
+
+2.  Find the **third quartile (Q3)** — the value at the 75th percentile (three-quarters of the way up).
+
+3.  Compute the difference:
+
+    -   IQR=Q3−Q1\text{IQR} = Q3 - Q1IQR=Q3−Q1
+
+------------------------------------------------------------------------
+
+### Sampling Bias
+
+\*\* Bias that happens when a research study does not use a representative sample of the target population.
+
+\*\*\* Difference between a population and a sample in statistics: A population includes all individuals or elements of interest, while a sample is a subset of the population chosen for analysis.
+
+### Stratified sampling
+
+\*\* Ensure that key subgroups within the population are adequately represented in the sample
+
+------------------------------------------------------------------------
+
+### Reporting on the Margin
+
+------------------------------------------------------------------------
+
+### Correlation between two variables
+
+\*\* A statistical association between the two variables.
+
+\*\*\* Correlation could be due to a third, unseen variable influencing both variables(Confounding variable)
+
+Direction of scatterplot indicates if the relationship between two variables is positive, negative, or nonexistent.
+
+the `cor()` function to calculate the correlation between aptitude and performance
+
+The Pearson correlation scale is from -1 to 1.
+
+-1 is a perfect negative correlation
+
+1 is a perfect positive correlation
+
+\*\*\*
+
+-- High Degree: Values between ±0.50 and ±1 suggest a strong correlation.
+
+-- Moderate Degree: Values between ±0.30 and ±0.49 indicate a moderate correlation.
+
+-- Low Degree: Values below +0.29 are considered a weak correlation.
+
+-- No Correlation: A value of zero implies no relationship.
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(scribr)
+library (lubridate)
+library(dplyr)
+library(tidyr)
+```
+
+## Loading Data In and Out
+
+```{r}
+students <- read_csv("https://pos.it/r4ds-students-csv") #reads csv in 
+```
+
+```{r}
+write_csv("./data/maryland_population_with_voters_and_demographics.csv") #reads csv out to deskstop folder 
+```
+
+```{r}
+
+```
+
+## Calculations
+
+### Square Root
+
+```{r}
+p <- sqrt(16)
+```
+
+Calculate the total number of incidents per month for each category using `mutate()`, calling the new column `total_incidents`. Then calculate the average number of incidents per month for each category of crime, calling the new column `average_incidents`. Assign the result to a new dataframe called `pg_crime_averages`.
+
+```{r}
+pg_crime_averages <- pg_crime |>
+  mutate( #creates new column in data set with calculation results 
+    total_incidents = rowSums(across(Jan:Dec), na.rm = TRUE), 
+    average_incidents = rowMeans(across(Jan:Dec), na.rm = TRUE)
+  )
+```
+
+Calculate the percentage change compared to the average for each category of crime for the months of June, July, and August
+
+```{r}
+summer_crime_averages <- pg_crime |>
+  mutate(
+    average_incidents = rowMeans(across(Jan:Dec), na.rm = TRUE),
+    jun_change = (Jun - average_incidents) / average_incidents * 100,
+    jul_change = (Jul - average_incidents) / average_incidents * 100,
+    aug_change = (Aug - average_incidents) / average_incidents * 100
+  )
+```
+
+Calculate the total number of incidents for each category using `mutate()`, calling the new column `total_incidents`. Then calculate the average number of incidents per month for each category of crime
+
+```{r}
+pg_crime_averages <- pg_crime |> 
+mutate(total_incidents = `Jan` + `Feb` + `Mar` + `Apr` + `May` + `Jun` + `Jul` + `Aug` + `Sep` + `Oct` + `Nov` + `Dec`) |> 
+  mutate(average_incidents = total_incidents / 12)
+```
+
+Calculate mean, median, and the min/max values using summarise()
+
+```{r}
+ summarise(
+     mean_salary   = mean(salary, na.rm = TRUE),
+    median_salary = median(salary, na.rm = TRUE),
+    max_salary = max(salary, na.rm=TRUE),
+    min_salary = min(salary, na.rm=TRUE)
+  )
+```
+
+### Rates
+
+Calculate violent and property crime rates for each city for both years using \`mutate()
+
+```{r}
+md_crime_rates <- md_cities |>
+  group_by(city) |>
+mutate(
+  violent_rate_2019 = violent2019 / pop2019 * 1000,
+  property_rate_2019 = property2019 / pop2019 * 1000,
+  violent_rate_2020 = violent2020 / pop2020 * 1000,
+  property_rate_2020 = property2020 / pop2020 * 1000
+)
+```
+
+### Percentage Change
+
+```{r}
+md_cities_change <- md_crime_rates |>
+  group_by(city) |>
+mutate (
+  violent_per_change = (violent_rate_2020 - violent_rate_2019) / violent_rate_2019 * 100,
+  property_per_change = (property_rate_2020 - property_rate_2019) / property_rate_2019 * 100
+) 
+```
+
+### Arrange
+
+```{r}
+arrange(desc(property_per_change), (desc(violent_per_change)), (desc(violent_rate_2019)), (desc(property_rate_2019)), (desc(violent_rate_2020)), (desc(property_rate_2020)))
+```
+
+### Calculating Percentiles using ntile()
+
+```{r}
+md_cities_percentiles <- md_cities_change  |>
+mutate(percentile = ntile(violent_rate_2020, 100)) |>
+arrange(desc(violent_rate_2020))
+
+md_cities_percentiles
+```
+
+### Calculate the Interquartile Range of the 2020 violent crime rate using `summarize()` and R's `IQR()` function
+
+```{r}
+md_cities_percentiles |>
+summarise(
+   iqr_violent_2020 = IQR(violent_rate_2020, na.rm = TRUE)
+```
+
+IQR
+
+```{r}
+wh_salaries_clean |>
+  summarise(
+    Q1 = quantile(salary, 0.25, na.rm = TRUE),
+    Q3 = quantile(salary, 0.75, na.rm = TRUE),
+    IQR = IQR(salary, na.rm = TRUE)
+  ) |>
+  mutate(
+    lower_bound = Q1 - 1.5 * IQR,
+    upper_bound = Q3 + 1.5 * IQR
+  )
+```
+
+Then filter salaries outside that range:
+
+```{r}
+wh_salaries_clean |>
+  filter(salary < lower_bound | salary > upper_bound)
+```
+
+### Calculate the standard deviation of the number of car thefts
+
+```{r}
+car_thefts |> summarize(mean = mean(count), sd = sd(count))
+```
+
+### Calculate the Skew
+
+```{r}
+spotify |> 
+  summarize(sd = sd(danceability), 
+            mean = mean(danceability),
+            median = median(danceability)) |> 
+   mutate(skew = 3*(mean-median)/sd)
+```
+
+### Histograms
+
+Write code to create a histogram of the danceability scores in the Spotify dataset, based on the example we did in class.
+
+```{r}
+  ggplot(aes(x = danceability)) +
+  geom_histogram(binwidth = 0.01, fill = "blue", color = "black") +
+  labs(title = "Distribution of Danceability Scores in Spotify Songs 2020", x = "Danceability Score", y = "Number of Songs")
+```
+
+Add a line to the histogram for the mean danceability score
+
+```{r}
+ ggplot(aes(x = danceability)) +
+  geom_histogram(binwidth = 0.01, fill = "blue", color = "black") +
+  geom_vline(aes(xintercept = mean(danceability, na.rm = TRUE)), color = "red", linetype = "dashed", size = 1)  +
+  labs(title = "Distribution of Danceability Scores in Spotify Songs 2020", x = "Danceability Score", y = "Number of Songs")
+```
+
+Add two lines to the histogram to show one standard deviation
+
+```{r}
+spotify |> 
+  ggplot(aes(x = danceability)) +
+  geom_histogram(binwidth = 0.05, fill = "blue", color = "black") +
+  geom_vline(aes(xintercept = mean(danceability)), color = "red", linetype = "dashed") +
+  geom_vline(aes(xintercept = mean(danceability) + sd(danceability)), color = "yellow", linetype = "dashed") +
+  geom_vline(aes(xintercept = mean(danceability) - sd(danceability)), color = "yellow", linetype = "dashed") +
+  labs(title = "Distribution of Danceability Scores in Spotify Songs 2020", x = "Danceability Score", y = "Number of Songs")
+```
+
+### Scattarplots
+
+```{r}
+consultants |> 
+  ggplot() +
+  geom_point(aes(x=aptitude, y=performance)) +
+  geom_smooth(aes(x=aptitude, y=performance), method="lm") +
+  expand_limits(x = 0, y = 0)
+```
+
+### Correlation
+
+```{r}
+consultants |> summarize(correlation = cor(aptitude, performance, method="pearson"))
+```
+
+The "best fit" line is known as a regression line that helps us understand the relationship between two variables. This predicts the dependent variable based on the independent variable.
+
+A regression line is a straight line showing a best-fit between independent and dependent variables.
+
+In the example above, aptitude would be the independent variable, or the predictor. That's because we would expect aptitude to predict performance, which is the dependent variable, or the outcome variable.
+
+Independent = predictor Dependent = outcome
+
+Regression is one step ahead of correlation. It helps predict the values of dependent variables or outcomes with respect to changes in independent or explanatory variables. Regression lines help predict outcomes.
+
+### Add labels to the scatterplot using geom_text(). Inside geom_text() put the same aes() as geom_point in Task 4, then after the aes() add size = 5.
+
+```{r}
+md_data |> 
+  ggplot() +
+  geom_point(aes(x=temperature, y=murders))+
+  geom_smooth(aes(x=temperature, y=murders), method="lm") +
+  geom_text(aes(x=temperature, y = murders, label = month), size= 5) +
+  labs(title = "Relationship Between Temperature and Homicides", x = "temperature", y = "murders")
+```
