@@ -378,3 +378,11 @@ md_data |>
   geom_text(aes(x=temperature, y = murders, label = month), size= 5) +
   labs(title = "Relationship Between Temperature and Homicides", x = "temperature", y = "murders")
 ```
+
+
+## Midterm Notes 
+
+```{r}
+filter (compliance_score > 96.30665) ---> this finds which resturants have a complaince score less than the average 
+```
+

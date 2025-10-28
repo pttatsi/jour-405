@@ -93,6 +93,8 @@ mutate (
 ```{r}
 #your code here
 hs_athletics |> summarize(correlation = cor(boys, girls, method="pearson"))
+
+glimpse(hs_athletics)
 ```
 
 #Task 8: Create a scatterplot showing this relationship, adding a line of best fit. Include a headline and label the x and y axes.
