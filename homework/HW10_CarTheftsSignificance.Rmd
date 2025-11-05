@@ -21,14 +21,12 @@ library(tidyverse)
 ### Task 2: Load the Prince George's county crime data and generate car thefts totals by month
 
 ```{r}
-
 # Read the data
 car_thefts <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/car_thefts_month.csv")  |> 
-  arrange(month)  # Sort by date
+arrange(month)  # Sort by date
 
 # Basic inspection of the data
 glimpse(car_thefts)
-
 ```
 
 ### Task 3: Let's make a chart and describe the results.
@@ -58,7 +56,7 @@ ggplot(aes(x = month, y = total)) +
 
 **Q3:** What's your initial reaction to the change in car thefts? Is there a trend?
 
-**WRITE ANSWERS HERE:** 
+**WRITE ANSWERS HERE:**  My initial reaction is that car thefts have steadily decreased since 2023, with significant drop sometime in 2024, though there are some periods of little upcline sometime between 2024 and 2025.  
 
 
 ### Task 4: Add the mean, standard error and calculate a margin of error based on a 95% confidence interval
@@ -72,7 +70,7 @@ Let's add some stats to that process - mean and standard deviation - and calcula
 theft_summary <- car_thefts |> 
   summarize(
     mean_thefts = mean(total),
-    sd_thefts = sd(REPLACE_ME),
+    sd_thefts = sd(total),
     months = n(),
     se_thefts = sd_thefts / sqrt(months),
     margin_error = qt(0.975, df = months - 1) * se_thefts,  # Using t-distribution for small sample
@@ -84,13 +82,9 @@ theft_summary <- car_thefts |>
 theft_summary
 ```
 
-
-
-
 ### Task 5: Visualize the data
 
-Let's make a better chart showing the changes and the statistics we produced in Task 4. Does this change anything about your answer from Task 3?
-
+Let's make a better chart showing the changes and the statistics we produced in Task 4. Does this change anything about your answer from Task 3?  Not necessarily, I still feel that crime has generally decreased from the time period where our analysis starts and ends, though there are notable outliers. 
 
 
 ```{r}
@@ -117,11 +111,11 @@ ggplot(aes(x = month, y = total)) +
 
 ### Task 6: Describe the confidence interval.
 
-- What does the 95% confidence interval show here? **WRITE ANSWER HERE:**
+- What does the 95% confidence interval show here? **WRITE ANSWER HERE:** 
 
-- What figure(s) accurately reflects the number of car thefts in a typical month? **WRITE ANSWER HERE:**
+- What figure(s) accurately reflects the number of car thefts in a typical month? **WRITE ANSWER HERE:** 
 
-- Propose a headline about the trend in car thefts that is focused on the present and future, but informed by the data you see above. **WRITE ANSWER HERE:**
+- Propose a headline about the trend in car thefts that is focused on the present and future, but informed by the data you see above. **WRITE ANSWER HERE:** 
 
 
 
