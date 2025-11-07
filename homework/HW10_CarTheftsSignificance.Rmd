@@ -111,11 +111,12 @@ ggplot(aes(x = month, y = total)) +
 
 ### Task 6: Describe the confidence interval.
 
-- What does the 95% confidence interval show here? **WRITE ANSWER HERE:** 
-
+- What does the 95% confidence interval show here? **WRITE ANSWER HERE:**
+** We’re 95% confident that the true mean number of thefts per month is between about 415 and 506.
 - What figure(s) accurately reflects the number of car thefts in a typical month? **WRITE ANSWER HERE:** 
-
-- Propose a headline about the trend in car thefts that is focused on the present and future, but informed by the data you see above. **WRITE ANSWER HERE:** 
+** In a typical month, there are about 460 car thefts, usually between 415 and 506.
+- Propose a headline about the trend in car thefts that is focused on the present and future, but informed by the data you see above. 
+**WRITE ANSWER HERE:** Car thefts significantly went down since 2023 despite seasonal outliers 
 
 
 
@@ -146,11 +147,11 @@ t_test_periods
 period_summary <- car_thefts |> 
   group_by(period) |> 
   summarize(
-    mean_thefts = mean(REPLACE_ME),
+    mean_thefts = mean(total),
     sd_thefts = sd(total),
     months = n(),
     se_thefts = sd_thefts / sqrt(months),
-    margin_error = qt(0.975, df = REPLACE_ME - 1) * se_thefts, # look at how we calculated this above
+    margin_error = qt(0.975, df = month - 1) * se_thefts, # look at how we calculated this above
     ci_lower = mean_thefts - margin_error,
     ci_upper = mean_thefts + margin_error
   )
