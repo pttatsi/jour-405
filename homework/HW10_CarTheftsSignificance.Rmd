@@ -185,7 +185,4 @@ How would you revise your headline from Task 6, if at all? What would you tell y
 I don't know what yet i'd change my headline to say but I would tell my editor that I want to investigate outliers and see if there are common causes. It also seems like the data set is incomplete, we don't have all of 2023 and most of 2025 so I would try to find that information and redo the test. The results of that will help me know how to change my headline. 
 
 
-
-
-
 When you are finished, add, commit and push your notebook and submit the URL in ELMS.
