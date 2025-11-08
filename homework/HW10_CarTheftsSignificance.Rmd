@@ -113,10 +113,12 @@ ggplot(aes(x = month, y = total)) +
 
 - What does the 95% confidence interval show here? **WRITE ANSWER HERE:**
 ** We’re 95% confident that the true mean number of thefts per month is between about 415 and 506.
+
 - What figure(s) accurately reflects the number of car thefts in a typical month? **WRITE ANSWER HERE:** 
 ** In a typical month, there are about 460 car thefts, usually between 415 and 506.
+
 - Propose a headline about the trend in car thefts that is focused on the present and future, but informed by the data you see above. 
-**WRITE ANSWER HERE:** Car thefts significantly went down since 2023 despite seasonal outliers 
+**WRITE ANSWER HERE:** Car thefts in PG county significantly decreased since 2023 despite seasonal outliers 
 
 
 
@@ -151,10 +153,11 @@ period_summary <- car_thefts |>
     sd_thefts = sd(total),
     months = n(),
     se_thefts = sd_thefts / sqrt(months),
-    margin_error = qt(0.975, df = month - 1) * se_thefts, # look at how we calculated this above
+    margin_error = qt(0.975, df = months - 1) * se_thefts,
     ci_lower = mean_thefts - margin_error,
     ci_upper = mean_thefts + margin_error
   )
+
 
 period_summary |> 
 ggplot(aes(x = period, y = mean_thefts, fill = period)) +
@@ -175,9 +178,11 @@ ggplot(aes(x = period, y = mean_thefts, fill = period)) +
 
 ### Task 8: Reflection
 
-Given the above chart, is the difference between the two periods statistically significant? Can we reject the null hypothesis? **WRITE ANSWER HERE:**
+Given the above chart, is the difference between the two periods statistically significant? Can we reject the null hypothesis? **WRITE ANSWER HERE:** The p-value of 0.17 is larger than 0.05 which is our level of significance. So we reject the null hypothesis that the difference between the two periods is statistically significany
 
 How would you revise your headline from Task 6, if at all? What would you tell your editor, and what would you expect her to ask you? **WRITE ANSWER HERE:**
+
+I don't know what yet i'd change my headline to say but I would tell my editor that I want to investigate outliers and see if there are common causes. It also seems like the data set is incomplete, we don't have all of 2023 and most of 2025 so I would try to find that information and redo the test. The results of that will help me know how to change my headline. 
 
 
 
