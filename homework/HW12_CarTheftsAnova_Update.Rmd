@@ -96,7 +96,9 @@ ggplot(theft_data, aes(x = date, y = theft_rate)) +
 
 **Task 3** Describe the output of this chart and then give it a better, more active title that provides the lede (3 points)
 
-**WRITE YOUR ANSWER HERE** The output visualizes the monthly rate of theft in PG county over a 9-year period with a significant spike in 2023. Title: Monthly car theft rates increases per 100,000 PG county residents across nine years with significant spike in 2023
+**WRITE YOUR ANSWER HERE** The output visualizes the monthly rate of theft in PG county over a 9-year period with a significant spike in 2023. 
+
+**Title: Monthly car theft rates increases per 100,000 PG county residents across nine years with significant spike in 2023
 
 Now let's take a look at average theft rates.
 
@@ -131,9 +133,8 @@ For our ANOVA test, we'll compare the mean theft rates between the three time pe
 
 **Task 4** Fill in the hypotheses (2 points)
 
-- **Null Hypothesis (H0)**:   WRITE YOUR ANSWER HERE
-
-- **Alternative Hypothesis (H1)**: WRITE YOUR ANSWER HERE
+- **Null Hypothesis (H0)**:   There will be no difference in theft rate between the three time periods 
+- **Alternative Hypothesis (H1)**: There will be a difference in theft rate between the three time periods 
 
 ### One-way ANOVA Test
 
@@ -145,7 +146,7 @@ summary(period_anova)
 
 **Task 5** Describe the result: are there real differences in the average rates between the time periods? Is this result significant? (5 points)
 
-**WRITE YOUR ANSWER HERE**
+**WRITE YOUR ANSWER HERE** The ANOVA results show real and statistically significant differences in the average rates across the three time periods. The F-statistic is very large (F = 218), and the p-value is effectively zero (p < 2e-16), which is indicated by the *** significance code. This means the differences in mean rates between the pre-spike, spike year, and post-spike periods are far too large to be explained by random variation. So the spike year genuinely had higher car theft rates than the pre-spike period, and the post-spike period also remained relatively elevated to pre-spike levels.
 
 ## Compare the differences between specific periods
 
@@ -191,4 +192,9 @@ This analysis has examined whether there are significant differences in car thef
 
 **Task 6** Describe the results of the Tukey's test and chart showing confidence intervals. Is there a significant difference between the three periods? In particular, is the difference between the pre-spike and post-spike periods real and significant? Write a headline and lede reporting these findings, focusing on the pre- and post-spike periods. (5 points)
 
-**WRITE YOUR ANSWER HERE**
+**WRITE YOUR ANSWER HERE** 
+The Tukey test tells us where the significance comes from. From this test, we can see the most significant difference comes from the comparison of pre-spike and spike years. The difference between the pre-spike and post-spike years are real and significant, as indicated by the -20.13231 difference. The p-value is  zero for all categories/comparisons which confirms that this increase was not due to random chance. So, even after the spike year ended, theft rates remained significantly higher than they were before the spike.
+
+HL: Car thefts significantly rose since 2023 in PG county 
+LEDE: Car thefts in Prince George’s County spiked dramatically in 2023 and have remained above pre-spike levels ever since, according to new analysis of car thefts in the county over a nine year period.
+
