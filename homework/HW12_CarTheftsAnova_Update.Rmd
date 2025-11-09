@@ -195,6 +195,6 @@ This analysis has examined whether there are significant differences in car thef
 **WRITE YOUR ANSWER HERE** 
 The Tukey test tells us where the significance comes from. From this test, we can see the most significant difference comes from the comparison of pre-spike and spike years. The difference between the pre-spike and post-spike years are real and significant, as indicated by the -20.13231 difference. The p-value is  zero for all categories/comparisons which confirms that this increase was not due to random chance. So, even after the spike year ended, theft rates remained significantly higher than they were before the spike.
 
-HL: Car thefts significantly rose since 2023 in PG county 
+HL: New data shows car thefts significantly rose in PG county since 2023 
 LEDE: Car thefts in Prince George’s County spiked dramatically in 2023 and have remained above pre-spike levels ever since, according to new analysis of car thefts in the county over a nine year period.
 
