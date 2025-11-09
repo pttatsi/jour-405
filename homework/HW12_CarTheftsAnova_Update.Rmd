@@ -1,7 +1,10 @@
 ---
-title: "Prince George's County Car Theft Spike Analysis"
+title: "HW12 car theft anova"
 author: "Your Name"
 ---
+
+**Princess Tatsi**
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
@@ -45,7 +48,7 @@ theft_data <- theft_data |>
     date = as.Date(month),
     year = year(date),
     month_number = month(date),
-    theft_rate = (REPLACE_ME / REPLACE_ME) * 100000,
+    theft_rate = (total / population ) * 100000,
     time_period = case_when(
       year < 2023 ~ "Pre-spike",
       year == 2023 ~ "Spike year",
@@ -66,13 +69,12 @@ period_summary <- theft_data |>
   )
 
 # Display the summary
-knitr::kable(period_summary, digits = 2,
-             caption = "Summary of Car Theft Rates by Time Period")
+period_summary
 ```
 
 **Task 2** Describe the results of calculating the rates for each period. What do they suggest? (3 points)
 
-ANSWER_HERE
+**WRITE YOUR ANSWER HERE**: The median rate nearly tripled from the 22.2 in the pre-spike to 58.1 in the spike year but the sample sizes varied a great deal, with 71 observations in pre-spike versus 12 in the spike year. The numbers suggest that it wasn't the number of crimes increasing but the rate at which they happened relative to the population. 
 
 ## Visualizing the Spike Pattern
 
@@ -94,8 +96,7 @@ ggplot(theft_data, aes(x = date, y = theft_rate)) +
 
 **Task 3** Describe the output of this chart and then give it a better, more active title that provides the lede (3 points)
 
-ANSWER HERE
-
+**WRITE YOUR ANSWER HERE** The output visualizes the monthly rate of theft in PG county over a 9-year period with a significant spike in 2023. Title: Monthly car theft rates increases per 100,000 PG county residents across nine years with significant spike in 2023
 
 Now let's take a look at average theft rates.
 
@@ -130,9 +131,9 @@ For our ANOVA test, we'll compare the mean theft rates between the three time pe
 
 **Task 4** Fill in the hypotheses (2 points)
 
-- **Null Hypothesis (H0)**: ANSWER HERE
+- **Null Hypothesis (H0)**:   WRITE YOUR ANSWER HERE
 
-- **Alternative Hypothesis (H1)**: ANSWER HERE
+- **Alternative Hypothesis (H1)**: WRITE YOUR ANSWER HERE
 
 ### One-way ANOVA Test
 
@@ -144,7 +145,7 @@ summary(period_anova)
 
 **Task 5** Describe the result: are there real differences in the average rates between the time periods? Is this result significant? (5 points)
 
-ANSWER HERE
+**WRITE YOUR ANSWER HERE**
 
 ## Compare the differences between specific periods
 
@@ -190,4 +191,4 @@ This analysis has examined whether there are significant differences in car thef
 
 **Task 6** Describe the results of the Tukey's test and chart showing confidence intervals. Is there a significant difference between the three periods? In particular, is the difference between the pre-spike and post-spike periods real and significant? Write a headline and lede reporting these findings, focusing on the pre- and post-spike periods. (5 points)
 
-ANSWER HERE
+**WRITE YOUR ANSWER HERE**

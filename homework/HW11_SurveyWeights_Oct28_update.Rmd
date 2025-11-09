@@ -4,8 +4,7 @@ author: "Derek Willis/Rob Wells"
 date: 10-28-2025
 ---
 
-
-**"Your Name Here"**
+**"Princess Tatsi"**
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
@@ -41,7 +40,7 @@ First, let's examine the distribution of education levels in our sample. **Repla
 ```{r}
 
 education_distribution <- nonvoters_data |>
-  count(REPLACE_ME) |>
+  count(educ) |>
   mutate(percentage = n / sum(n) * 100)
 
 education_distribution
@@ -51,7 +50,9 @@ education_distribution
 
 Why might education levels in survey samples often differ from the general population? What factors might cause certain education groups to be over or underrepresented?
 
-**Write your ANSWER HERE**
+**Write your ANSWER HERE** 
+
+Survey samples don't always reflect the true population because some groups are less likely to take part due to less civic engagement or political stances This creates over- or under-representation in key characteristics like education. In this case, people with college degrees participated more in the survey, probably because they are more willing/able to respond than those without college education. Also because they might feel the most credibility to participate in the survey. 
 
 
 ## Task 3: Unweighted Analysis by Education
@@ -93,7 +94,7 @@ unweighted_educ_summary
 
 Based just on this unweighted analysis, what headline might you write for a news story about education and voting intentions?
 
-**Write your ANSWER HERE**
+**Write your ANSWER HERE** Educational levels significantly impacts your likeliness to vote (now would need to test for significance, lol)
 
 ## Task 5: Weighted Analysis by Education
 
@@ -107,7 +108,7 @@ weighted_by_education <- nonvoters_data |>
   # Group by education and response
   group_by(educ, Q21) |>
   # Sum the weights instead of counting
-  summarize(weighted_count = sum(REPLACE_ME), .groups = "drop_last") |>
+  summarize(weighted_count = sum(Q21), .groups = "drop_last") |>
   # Calculate weighted percentages
   mutate(weighted_total = sum(weighted_count),
          weighted_percentage = weighted_count / weighted_total * 100) |>
@@ -134,11 +135,11 @@ weighted_educ_summary
 
 1. How did the percentages change after applying weights? Which education group showed the biggest changes?
 
-**Write your ANSWER HERE**
+**Write your ANSWER HERE** Groups that were underrepresented in the unweighted table saw an increase because we applied their weights. For example, voters whose education is high school or less and who said they don't plan to vote were underrepresented before at 14.6%, now their percentage is 21.1%. 
 
 2. Why might the weighted results be considered more accurate than the unweighted results?
 
-**Write your ANSWER HERE**
+**Write your ANSWER HERE** The weighted results might be considered more accurate than the unweighted results because it accounts for gaps in population representation so the results have more validity. 
 
 ## Task 7: Comparison of Weighted vs. Unweighted Results
 
@@ -170,7 +171,7 @@ comparison
 
 Which education group shows the largest differences between weighted and unweighted results?
 
-**Write your ANSWER HERE**
+**Write your ANSWER HERE** Voters with a high school or less education who answers yes to voting intentions saw the largest difference of -20.3% between weighted and unweighted results
 
 ## Task 9: Visualization
 
@@ -189,7 +190,7 @@ educ_viz_data <- bind_rows(
     filter(Q21 == 1) |>  # Only "Yes" responses
     mutate(
       Type = "Weighted",
-      percentage = REPLACE_ME
+      percentage = weighted_percentage
     ) |>
     select(Type, educ, percentage)
 )
@@ -219,9 +220,13 @@ ggplot(educ_viz_data,
 
 1. Why is it important for journalists to understand survey weighting when reporting on polls?
 
-**Write your ANSWER HERE**
-2. How might the differences between weighted and unweighted results affect how you would report on this data?
+**Write your ANSWER HERE** It is important for journalists to understand survey weighting when reporting on polls because we never want to under represent or over represent groups of people as it will lead to inaccurate projections like in the 2020 election. 
 
-**Write your ANSWER HERE**
+It is important for journalists to understand survey weighting because it accounts for imbalances in who responds to a poll. Without weighting, some groups may be overrepresented while others are underrepresented. This can distort results, leading to misleading conclusions. Proper interpretation of weighted data helps to avoid overemphasing trends, mischaracterizing public opinion, or repeating errors seen in past elections such as the 2020 election where unweighted or poorly weighted samples contributed to inaccurate projections.
+
+2. How might the differences between weighted and unweighted results affect how you would report on this data? 
+
+**Write your ANSWER HERE** I would report on how college education impacts participation in politics. with a focus on the weight increase for voters who are high school graduates or completed some college, especially those who answered unsure (increase of 13.8 for high school graduates and 10.1 increase for some college) or no (increase of 6.496432 for high school graduates and increase of 4.816512 for some college ) to their voting intentions. I would also explain that  differences likely reflect underlying demographic participation patterns rather than genuine differences in political interest. To me, this signals a confounding variable affecting the participation of those who are not college graduates. 
+
 3. What additional information would you want to know about how the weights were calculated before using this data in a news story?
-**Write your ANSWER HERE**
+**Write your ANSWER HERE** I would want to know the source of population data for which the survey was weighted on, the weighing methodlogy used. For example, if it was iterative proportional fitting aka raking, i would want to know what set of variables where used to adjust the weight for each case. 

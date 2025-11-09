@@ -220,7 +220,7 @@ unweighted_summary <- unweighted_by_voter_category |>
 unweighted_summary
 ```
 
-**Explanation:** - This table shows the percentage of respondents in
+**Explanation:** -This table shows the percentage of respondents in
 each voter category who said "Yes," "No," or "Unsure" when asked if they
 plan to vote - We calculated these percentages by simply counting
 responses and dividing by the total in each category - No weights have
