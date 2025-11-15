@@ -52,7 +52,7 @@ arrange(desc(count)) |>
   head()
 ```
 
-Question: Which offense is most common in each county — and which county–offense combos are highest overall?
+Which offense is most common in each county — and which county–offense combos are highest overall?
 ```{r}
  most_common_offense <- crime_select |>
    group_by(county_name, offense_name) |>
@@ -63,7 +63,7 @@ Question: Which offense is most common in each county — and which county–off
   arrange(desc(count))
 ```
 
-
+**Crime by category in Maryland's five most populous counties 
 
 ```{r}
 pg_crime <- most_common_offense |>
@@ -100,6 +100,7 @@ head()
 head()
 ```
 
+
 ```{r}
 baltimore_city_crime <- most_common_offense |>
   filter(county_name ==  "BALTIMORE CITY") |>
@@ -112,7 +113,7 @@ head()
  --Select a relevant column and produce basic descriptive statistics on the mean, median, lowest and highest values.
 ```{r}
 cleaned_md_county_pop <- md_county_pop |> 
- mutate(county = county |> str_replace_all ("Baltimore City, Maryland", "Baltimore City"))
+ mutate(county = county |> str_replace ("Baltimore City, Maryland", "Baltimore City"))
 ```
 
   -- Null Hypothesis: 
