@@ -74,7 +74,7 @@ Stats:
     -Vandalism generally is the most frequent crime in Maryland counties.
     - There is a positive relationship between county population and vandalism incidents
     
----Note: my surface analysis shows me that though more populous counties make it seem like vandalism occurs more than it actually does in Maryland, it is still the top crime even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties. 
+---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. 
 
 ```{r}
 destruction_of_property |>
