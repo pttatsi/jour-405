@@ -36,25 +36,72 @@ NIBR <- read_csv("nibrs_2024.csv") #National Incident based report for 2024; col
  ** I need to join my md_county_pop dataframe with the md_crime by county so I have a single dataframe with the crime and population statistics; i can get median income from acs 2023. 
  
 ```{r}
-crime_select <- md_crime |>
+md_crime_select <- md_crime |>
 select(county_name, incident_date, offense_name, offense_category_name, location_name, crime_against)
 ```
 
 
 ```{r}
-md_crime |>
-group_by(offense_name) |>
+destruction_of_property <- md_crime_select |>
+  filter(offense_name == "Destruction/Damage/Vandalism of Property") 
+
+destruction_summary <- destruction_of_property |>
+  group_by(county_name) |>
   summarise(
-    count = n()
+    damage_count = n(),
+    .groups = "drop"
   ) |>
-  
-arrange(desc(count)) |>
+  summarise(
+    mean_crime = mean(damage_count, na.rm = TRUE),
+    median_crime = median(damage_count, na.rm = TRUE),
+    max_crime = max(damage_count, na.rm = TRUE),
+    min_crime = min(damage_count, na.rm = TRUE)
+  )
+
+destruction_summary
+
+```
+Stats: 
+- The county with the lowest total vandalism incidents had 41.
+- The county with the highest total vandalism incidents had 37,733.
+- There's an average of 4,814 vandalism incidents across Maryland counties. Though half of Maryland counties have 1,082 incidents or less. This large discrepancy hints at outliers in the data set that conflate the occurance of destruction, damage and vandalism in Maryland counties. 
+
+-- Null Hypothesis:
+  - Vandalism is not the most frequent crime in Maryland counties.
+  - There is no relationship between county population and the number of vandalism incidents.
+
+  -- Alternative Hypothesis: 
+    -Vandalism generally is the most frequent crime in Maryland counties.
+    - There is a positive relationship between county population and vandalism incidents
+    
+---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occurs more than it actually does in Maryland, it is still the top crime even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties. 
+
+```{r}
+destruction_of_property |>
+  group_by(location_name)|>
+  summarise(
+    location_count = n()
+  ) |>
+
+arrange(desc(location_count)) |>
   head()
 ```
 
-Which offense is most common in each county — and which county–offense combos are highest overall?
+
 ```{r}
- most_common_offense <- crime_select |>
+md_crime_count <- md_crime_select |>
+group_by(offense_category_name) |>
+  summarise(
+    count = n()
+  ) |>
+arrange(desc(count))
+  
+```
+
+Most common offense by county 
+
+```{r}
+ most_common_offense <- md_crime_select |>
    group_by(county_name, offense_name) |>
   summarise(
     count= n()
@@ -100,7 +147,6 @@ head()
 head()
 ```
 
-
 ```{r}
 baltimore_city_crime <- most_common_offense |>
   filter(county_name ==  "BALTIMORE CITY") |>
@@ -110,18 +156,33 @@ head()
 
 ```
  
+```{r}
+kent_city_crime <- most_common_offense |>
+  filter(county_name ==  "KENT") |>
+  group_by(offense_name) |>
+  arrange(desc(count)) |>
+head()
+```
+
+```{r}
+somerset_city_crime <- most_common_offense |>
+  filter(county_name ==  "SOMERSET") |>
+  group_by(offense_name) |>
+  arrange(desc(count)) |>
+head()
+```
+
+ 
  --Select a relevant column and produce basic descriptive statistics on the mean, median, lowest and highest values.
 ```{r}
 cleaned_md_county_pop <- md_county_pop |> 
- mutate(county = county |> str_replace ("Baltimore City, Maryland", "Baltimore City"))
+ mutate(county = str_replace_all (county, 'BALTIMORE CITY, MARYLAND', 'BALTIMORE CITY')) |>
+  
+rename(county_name = county)
 ```
 
-  -- Null Hypothesis: 
-  -- Alternative Hypothesis: 
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
