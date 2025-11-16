@@ -37,10 +37,21 @@ NIBR <- read_csv("nibrs_2024.csv") #National Incident based report for 2024; col
  
 ```{r}
 md_crime_select <- md_crime |>
-select(county_name, incident_date, offense_name, offense_category_name, location_name, crime_against)
+select(county_name, incident_date, offense_name, offense_category_name, location_name, crime_against) 
 ```
 
+```{r}
+md_crime_select |>
+group_by(crime_against) |>
+  summarise(
+     crime_against_count = n()
+  ) |>
 
+arrange(desc(crime_against_count)) 
+```
+
+ --Select a relevant column and produce basic descriptive statistics on the mean, median, lowest and highest values.
+ 
 ```{r}
 destruction_of_property <- md_crime_select |>
   filter(offense_name == "Destruction/Damage/Vandalism of Property") 
@@ -61,20 +72,31 @@ destruction_summary <- destruction_of_property |>
 destruction_summary
 
 ```
+```{r}
+destruction_of_property |>
+  group_by(county_name) |>
+   summarise(
+    damage_count = n()) |>
+
+arrange(desc(damage_count)) 
+```
+
 Stats: 
+- Property crime was the highest type of crime in Maryland counties with 530,914 incidents from 2023 to 2024, according to data analysis. 
 - The county with the lowest total vandalism incidents had 41.
-- The county with the highest total vandalism incidents had 37,733.
+- Prince George's county saw the highest number of vandalism incidents with 37,733. 
 - There's an average of 4,814 vandalism incidents across Maryland counties. Though half of Maryland counties have 1,082 incidents or less. This large discrepancy hints at outliers in the data set that conflate the occurance of destruction, damage and vandalism in Maryland counties. 
+- September 25th 2023 saw the biggest number of property destruction across Maryland counties. 
 
 -- Null Hypothesis:
-  - Vandalism is not the most frequent crime in Maryland counties.
-  - There is no relationship between county population and the number of vandalism incidents.
+  - Vandalism was not the most frequent crime in Maryland counties from 2023 to 2024.
+  - There is no relationship between county population and the number of vandalism incidents in a given county. 
 
-  -- Alternative Hypothesis: 
-    -Vandalism generally is the most frequent crime in Maryland counties.
-    - There is a positive relationship between county population and vandalism incidents
+-- Alternative Hypothesis: 
+    -Vandalism generally was the most frequent crime in Maryland counties from 2023 to 2024.
+    - There is a positive relationship between county population and vandalism incidents in a given county.
     
----Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. 
+---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. This is the same for crimes like shoplifting and sexual assualt. 
 
 ```{r}
 destruction_of_property |>
@@ -86,11 +108,21 @@ destruction_of_property |>
 arrange(desc(location_count)) |>
   head()
 ```
+```{r}
+destruction_of_property |>
+  group_by(incident_date)|>
+  summarise(
+    incident_count = n()
+  ) |>
 
+arrange(desc(incident_count)) 
+```
+
+Count of offenses by county and offense category
 
 ```{r}
-md_crime_count <- md_crime_select |>
-group_by(offense_category_name) |>
+md_crime_category_count <- md_crime_select |>
+group_by(offense_category_name, county_name) |>
   summarise(
     count = n()
   ) |>
@@ -98,8 +130,7 @@ arrange(desc(count))
   
 ```
 
-Most common offense by county 
-
+Count of offenses by county and offense name
 ```{r}
  most_common_offense <- md_crime_select |>
    group_by(county_name, offense_name) |>
@@ -172,16 +203,12 @@ somerset_city_crime <- most_common_offense |>
 head()
 ```
 
- 
- --Select a relevant column and produce basic descriptive statistics on the mean, median, lowest and highest values.
 ```{r}
 cleaned_md_county_pop <- md_county_pop |> 
  mutate(county = str_replace_all (county, 'BALTIMORE CITY, MARYLAND', 'BALTIMORE CITY')) |>
   
 rename(county_name = county)
 ```
-
-
 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
