@@ -41,17 +41,32 @@ select(county_name, incident_date, offense_name, offense_category_name, location
 ```
 
 ```{r}
-md_crime_select |>
-group_by(crime_against) |>
+md_crime_category_count <- md_crime_select |>
+group_by(offense_category_name) |>
   summarise(
-     crime_against_count = n()
+    total_per_category = n()
   ) |>
+arrange(desc(total_per_category))
+```
 
-arrange(desc(crime_against_count)) 
+```{r}
+md_crime_count <- md_crime_select |>
+mutate(count = 1)
 ```
 
  --Select a relevant column and produce basic descriptive statistics on the mean, median, lowest and highest values.
  
+Total of destruction incidents by county
+```{r}
+destruction_of_property_count <- destruction_of_property |>
+  group_by(county_name) |>
+  summarise(
+  damage_count = n()) |>
+  
+arrange(desc(damage_count)) 
+```
+ 
+Stats: 
 ```{r}
 destruction_of_property <- md_crime_select |>
   filter(offense_name == "Destruction/Damage/Vandalism of Property") 
@@ -73,12 +88,24 @@ destruction_summary
 
 ```
 ```{r}
-destruction_of_property |>
+crime_summary <- md_crime_count |>
   group_by(county_name) |>
-   summarise(
-    damage_count = n()) |>
-
-arrange(desc(damage_count)) 
+  summarise(
+    
+total_crimes = sum(count, na.rm = TRUE),
+total_vandalism = sum(count[offense_name == "Destruction/Damage/Vandalism of Property"], na.rm = TRUE),
+total_shoplifting = sum(count[offense_name == "Shoplifting"], na.rm = TRUE), .groups = "drop", 
+total_motor_theft = sum(count[offense_name == "Motor Vehicle Theft"], na.rm = TRUE),
+total_simple_assault = sum(count[offense_name == "Simple Assault"], na.rm = TRUE), 
+total_theft_from_motor = sum(count[offense_name == "Theft From Motor Vehicle"], na.rm = TRUE), 
+total_drug_nar_violations = sum(count[offense_name == "Drug/Narcotic Violations"], na.rm = TRUE)
+) |>
+mutate(pct_vandalism= total_vandalism / total_crimes * 100) |>
+mutate(pct_shoplifting= total_shoplifting / total_crimes * 100) |>
+mutate(pct_motor_theft= total_motor_theft / total_crimes * 100) |>
+mutate(pct_simple_assault= total_simple_assault / total_crimes * 100) |>
+mutate(pct_theft_from_motor= total_theft_from_motor  / total_crimes * 100) |>
+mutate(pct_drug_nar_violations = total_drug_nar_violations  / total_crimes * 100)
 ```
 
 Stats: 
@@ -87,6 +114,7 @@ Stats:
 - Prince George's county saw the highest number of vandalism incidents with 37,733. 
 - There's an average of 4,814 vandalism incidents across Maryland counties. Though half of Maryland counties have 1,082 incidents or less. This large discrepancy hints at outliers in the data set that conflate the occurance of destruction, damage and vandalism in Maryland counties. 
 - September 25th 2023 saw the biggest number of property destruction across Maryland counties. 
+- Kent (71 damage incidents to 14,650 residents) and Somerset, the least populous Maryland counties, have high counts of vandalism but on a much smaller scale when compared to Baltimore (28,057 incidents to 643,834 residents)
 
 -- Null Hypothesis:
   - Vandalism was not the most frequent crime in Maryland counties from 2023 to 2024.
@@ -98,16 +126,8 @@ Stats:
     
 ---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. This is the same for crimes like shoplifting and sexual assualt. 
 
-```{r}
-destruction_of_property |>
-  group_by(location_name)|>
-  summarise(
-    location_count = n()
-  ) |>
+Number of incidents by date 
 
-arrange(desc(location_count)) |>
-  head()
-```
 ```{r}
 destruction_of_property |>
   group_by(incident_date)|>
@@ -118,30 +138,29 @@ destruction_of_property |>
 arrange(desc(incident_count)) 
 ```
 
-Count of offenses by county and offense category
+Total offenses per category
 
 ```{r}
 md_crime_category_count <- md_crime_select |>
-group_by(offense_category_name, county_name) |>
+group_by(offense_category_name) |>
   summarise(
-    count = n()
+    total_per_category = n()
   ) |>
-arrange(desc(count))
+arrange(desc(total_per_category))
   
 ```
 
-Count of offenses by county and offense name
+Total Crime 
+
 ```{r}
-offense_name_county <- md_crime_select |>
-   group_by(county_name, offense_name) |>
+md_crime_count |>
   summarise(
-    count= n()
-  ) |>
+    total_crime_again = sum(count, na.rm = TRUE)
+  )
   
-  arrange(desc(count))
 ```
 
-**Crime by category in Maryland's five most populous counties 
+**Crime by category in Maryland's five most populous counties and two least populous cities
 
 ```{r}
 pg_crime <- offense_name_county |>
@@ -209,6 +228,15 @@ cleaned_md_county_pop <- md_county_pop |>
 rename(county_name = county)
 ```
 
+```{r}
+destruction_of_property |>
+  group_by(location_name)|>
+  summarise(
+    location_count = n()
+  ) |>
 
+arrange(desc(location_count)) |>
+  head()
+```
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
