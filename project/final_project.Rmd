@@ -132,7 +132,7 @@ arrange(desc(count))
 
 Count of offenses by county and offense name
 ```{r}
- most_common_offense <- md_crime_select |>
+offense_name_county <- md_crime_select |>
    group_by(county_name, offense_name) |>
   summarise(
     count= n()
@@ -144,7 +144,7 @@ Count of offenses by county and offense name
 **Crime by category in Maryland's five most populous counties 
 
 ```{r}
-pg_crime <- most_common_offense |>
+pg_crime <- offense_name_county |>
   filter(county_name ==  "PRINCE GEORGE'S") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -153,7 +153,7 @@ head()
 
 
 ```{r}
-baltimore_crime <- most_common_offense |>
+baltimore_crime <- offense_name_county |>
   filter(county_name ==  "BALTIMORE") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -162,7 +162,7 @@ head()
 
 
 ```{r}
-montgomery_crime <- most_common_offense |>
+montgomery_crime <- offense_name_county |>
   filter(county_name ==  "MONTGOMERY") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -171,7 +171,7 @@ head()
 ```
  
 ```{r}
- anne_arundel_crime <- most_common_offense |>
+ anne_arundel_crime <- offense_name_county |>
   filter(county_name ==  "ANNE ARUNDEL") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -179,7 +179,7 @@ head()
 ```
 
 ```{r}
-baltimore_city_crime <- most_common_offense |>
+baltimore_city_crime <- offense_name_county |>
   filter(county_name ==  "BALTIMORE CITY") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -188,7 +188,7 @@ head()
 ```
  
 ```{r}
-kent_city_crime <- most_common_offense |>
+kent_city_crime <- offense_name_county |>
   filter(county_name ==  "KENT") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -196,7 +196,7 @@ head()
 ```
 
 ```{r}
-somerset_city_crime <- most_common_offense |>
+somerset_city_crime <- offense_name_county |>
   filter(county_name ==  "SOMERSET") |>
   group_by(offense_name) |>
   arrange(desc(count)) |>
@@ -206,7 +206,6 @@ head()
 ```{r}
 cleaned_md_county_pop <- md_county_pop |> 
  mutate(county = str_replace_all (county, 'BALTIMORE CITY, MARYLAND', 'BALTIMORE CITY')) |>
-  
 rename(county_name = county)
 ```
 
