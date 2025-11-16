@@ -90,11 +90,11 @@ Stats:
 
 -- Null Hypothesis:
   - Vandalism was not the most frequent crime in Maryland counties from 2023 to 2024.
-  - There is no relationship between county population and the number of vandalism incidents in a given county. 
+  - There is no relationship between county population and the number of vandalism incidents in a given Maryland county. 
 
 -- Alternative Hypothesis: 
     -Vandalism generally was the most frequent crime in Maryland counties from 2023 to 2024.
-    - There is a positive relationship between county population and vandalism incidents in a given county.
+    - There is a positive relationship between county population and vandalism incidents in a given Maryland county.
     
 ---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. This is the same for crimes like shoplifting and sexual assualt. 
 
