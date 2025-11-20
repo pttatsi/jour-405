@@ -94,10 +94,12 @@ schools <- schools |>
 ```
 The schools with the biggest positive residuals are performing better than expected, while the schools with the biggest negative residuals are performing worse than expected, based on their FARMS percentage. Look at the absolute values of the residuals; what are the largest differences between the predicted result and the actual math scores?
 
-**WRITE YOUR ANSWER HERE**
+**WRITE YOUR ANSWER HERE** White Marsh Elementary had a math score  much worse than expected for a school with such a low FARMS percentage. According to the model, it is a significant under-performer in math.
+
 
 ## Task: Evaluate the model (3 points)
 
 A school board member has said at a meeting that elementary schools with fewer students on free and reduced price meals do better on standardized math tests. Describe what conclusions you'd draw from this model's results and how it would influence a story pitch about the school board member and math scores.
 
-**WRITE YOUR ANSWER HERE**
+**WRITE YOUR ANSWER HERE** I would say the relationship between the amount of students on free and reduced price meals and standardized math tests is too weak to conclude whether or not it has influence on performance. Like schools with similar FARMS percentages have differing percentages of those who met or exceeded math expectations, its non-linear. 
+I would pitch a story on why a school board member is trying to validate/credify having a low number of students on free and reduced meals when its common knowledge that those meals are essential to learning and growth, especially for students from low-income backgrounds. 
