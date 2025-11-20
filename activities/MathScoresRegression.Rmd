@@ -1,7 +1,7 @@
 
 ---
 title: "Activity: Linear Regression "
-date: 8-24-2025
+date: 11-17-2025
 ---
 
 ```{r}
@@ -27,7 +27,7 @@ schools <- read_csv("https://raw.githubusercontent.com/dwillis/jour405_files/ref
 ```
 ### Task: Create a Scatterplot and Describe the Results (2 points)
 
-Next, let's create a scatterplot to visualize the relationship between the FARMS percentage and the percentage of students who met or exceeded math expectations. We'll use ggplot2 to create the plot and add a linear regression line.
+Next, let's create a scatterplot to visualize the relationship between the FARMS  (Free and Reduced-price Meal System) percentage and the percentage of students who met or exceeded math expectations. We'll use ggplot2 to create the plot and add a linear regression line.
 
 ```{r}
 schools |>
@@ -39,7 +39,7 @@ schools |>
 
 The scatterplot shows the overall trend of the relationship between the FARMS percentage and the math test scores. The red line represents the linear regression line, which helps us understand the average relationship between the two variables. Based on what you see here, what's the relationship between FARMS percentage and math test scores?
 
-ANSWER HERE
+**WRITE YOUR ANSWER HERE** Based on the scatterplot, there is a weak positive relationship between FARMS percentage and math test scores. 
 
 
 ### Task: Linear Regression Model (3 points)
@@ -52,25 +52,36 @@ model <- lm(`% Met or Exceeded Math Expectations` ~ `FARMS Pct`, data = schools)
 summary(model)
 ```
 
-There are three things we need to examine here: the p-value, the Adjusted R-squared value and the coefficients. You know what a p-value is and how to evaluate it. The Adjusted R-squared is a measure of how much of the difference between schools' math scores can be explained by their FARMS percentage. You don't need to multiply that figure by anything: that's a percentage. The closer the adjusted R-squared is to 100, the more of the outcome the independent variable explains. If both the p-value and adjusted R-squared values are significant, we can look to the coefficients.
+***There are three things we need to examine here: the p-value, the Adjusted R-squared value and the coefficients. 
 
-In the middle, you can see the (Intercept) is 59.57897 and the FARMS coefficient is 0.12349. Remember high school algebra? Remember learning the equation of a line? Remember swearing that learning y=mx+b is stupid because you’ll never need it again? Surprise. It’s useful again. In this case, we could try to predict a school's score math score by using y=mx+b. In this case, y is the math score, m is 0.12349 and b is 59.57897. So we would multiply a school's FARMS percentage by 0.12349 and then add 59.57897 to it. The result would tell you what the math score would be, according to our model.
+**You know what a p-value is and how to evaluate it. The Adjusted R-squared is a measure of how much of the difference between schools' math scores can be explained by their FARMS percentage. You don't need to multiply that figure by anything: that's a percentage. 
+**The closer the intercept is to 100, the more of the outcome the independent variable explains. 
+**If both the p-value and adjusted R-squared values are significant, we can look to the coefficients.
+
+In the middle, you can see the (Intercept) is 59.57897 and the FARMS coefficient is 0.12349. Remember high school algebra? Remember learning the equation of a line? Remember swearing that learning y=mx+b is stupid because you’ll never need it again? Surprise. 
+
+It’s useful again. In this case, we could try to predict a school's score math score by using y=mx+b. In this case, y is the math score, m is 0.12349 and b is 59.57897. So we would multiply a school's FARMS percentage by 0.12349 and then add 59.57897 to it. The result would tell you what the math score would be, according to our model.
 
 Based on what you've learned so far, is this model worth using? What does it tell us about the nature of the relationship between FARMS percentage and math scores?
 
-ANSWER HERE
+**WRITE ANSWER HERE** Based on what I've so far learned, this model is worth using because it gives us a well of information to work with. It tells us the relationship between the FARMS percentage and math scores is insignificant using many avenues like the t-value, p-value and signigicant codes. 
 
 ### Task: Identifying Schools with Biggest Residuals (2 points)
 
-To find the schools with the biggest differences between their actual and expected math test scores, we'll extract the residuals from the linear regression model. The residuals represent the difference between the actual and predicted values. Residuals can tell you several things, but most important is if a linear model the right model for your data. If the residuals appear to be random, then a linear model is appropriate. If they have a pattern, it means something else is going on in your data and a linear model isn’t appropriate.
+To find the schools with the biggest differences between their actual and expected math test scores, we'll extract the residuals from the linear regression model.
 
-Residuals can also tell you who is under-performing and over-performing the model. And the more robust the model – the better your r-squared value is – the more meaningful that label of under or over-performing is. 
+The residuals represent the difference between the actual and predicted values. Residuals can tell you several things, but most important is if a linear model is the right model for your data. 
+
+***If the residuals appear to be random, then a linear model is appropriate. If they have a pattern, it means something else is going on in your data and a linear model isn’t appropriate.
+
+Residuals can also tell you who is under-performing and over-performing the model. 
+
+And the more robust the model – the better your r-squared value is – the more meaningful that label of under or over-performing is. 
 
 We'll then use the arrange() function to sort the data frame by the absolute value of the residuals.
 
 ```{r}
 schools$predicted <- predict(model)
-
 # Calculate the residuals
 schools <- schools |> 
   mutate(residual = `% Met or Exceeded Math Expectations` - predicted)
@@ -83,10 +94,10 @@ schools <- schools |>
 ```
 The schools with the biggest positive residuals are performing better than expected, while the schools with the biggest negative residuals are performing worse than expected, based on their FARMS percentage. Look at the absolute values of the residuals; what are the largest differences between the predicted result and the actual math scores?
 
-ANSWER HERE
+**WRITE YOUR ANSWER HERE**
 
 ## Task: Evaluate the model (3 points)
 
 A school board member has said at a meeting that elementary schools with fewer students on free and reduced price meals do better on standardized math tests. Describe what conclusions you'd draw from this model's results and how it would influence a story pitch about the school board member and math scores.
 
-ANSWER HERE
+**WRITE YOUR ANSWER HERE**

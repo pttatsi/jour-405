@@ -98,14 +98,26 @@ total_shoplifting = sum(count[offense_name == "Shoplifting"], na.rm = TRUE), .gr
 total_motor_theft = sum(count[offense_name == "Motor Vehicle Theft"], na.rm = TRUE),
 total_simple_assault = sum(count[offense_name == "Simple Assault"], na.rm = TRUE), 
 total_theft_from_motor = sum(count[offense_name == "Theft From Motor Vehicle"], na.rm = TRUE), 
-total_drug_nar_violations = sum(count[offense_name == "Drug/Narcotic Violations"], na.rm = TRUE)
+total_drug_nar_violations = sum(count[offense_name == "Drug/Narcotic Violations"], na.rm = TRUE) ,
+total_sex_offenses = sum(count[offense_category_name == "Sex Offenses"], na.rm = TRUE),
+total_fraud_offenses = sum(count[offense_category_name == "Fraud Offenses"], na.rm = TRUE), 
+total_human_trafficking = sum(count[offense_category_name == "Human Trafficking"], na.rm = TRUE), 
+total_sex_nonforcible = sum(count[offense_category_name == "Sex Offenses, Non-forcible"], na.rm = TRUE), #statutory rape and incest 
+total_theft_larceny = sum(count[offense_category_name == "Larceny/Theft Offenses"], na.rm = TRUE)
 ) |>
+
 mutate(pct_vandalism= total_vandalism / total_crimes * 100) |>
 mutate(pct_shoplifting= total_shoplifting / total_crimes * 100) |>
 mutate(pct_motor_theft= total_motor_theft / total_crimes * 100) |>
 mutate(pct_simple_assault= total_simple_assault / total_crimes * 100) |>
 mutate(pct_theft_from_motor= total_theft_from_motor  / total_crimes * 100) |>
-mutate(pct_drug_nar_violations = total_drug_nar_violations  / total_crimes * 100)
+mutate(pct_drug_nar_violations = total_drug_nar_violations  / total_crimes * 100) |>
+mutate(pct_sex_offenses = total_sex_offenses / total_crimes * 100) |>
+mutate(pct_fraud_offenses = total_fraud_offenses / total_crimes * 100) |>
+mutate(pct_human_trafficking= total_human_trafficking / total_crimes * 100)  |>
+mutate(pct_sex_nonforcible= total_sex_nonforcible / total_crimes * 100) |>
+mutate(pct_theft_larceny= total_theft_larceny/ total_crimes * 100) 
+  
 ```
 
 Stats: 
@@ -115,13 +127,14 @@ Stats:
 - There's an average of 4,814 vandalism incidents across Maryland counties. Though half of Maryland counties have 1,082 incidents or less. This large discrepancy hints at outliers in the data set that conflate the occurance of destruction, damage and vandalism in Maryland counties. 
 - September 25th 2023 saw the biggest number of property destruction across Maryland counties. 
 - Kent (71 damage incidents to 14,650 residents) and Somerset, the least populous Maryland counties, have high counts of vandalism but on a much smaller scale when compared to Baltimore (28,057 incidents to 643,834 residents)
+-- A total of 8,005 crimes are not specified by county name 
 
 -- Null Hypothesis:
-  - Vandalism was not the most frequent crime in Maryland counties from 2023 to 2024.
+  - Theft  was not the most frequent crime in Maryland counties from 2023 to 2024.
   - There is no relationship between county population and the number of vandalism incidents in a given Maryland county. 
 
 -- Alternative Hypothesis: 
-    -Vandalism generally was the most frequent crime in Maryland counties from 2023 to 2024.
+    -Theft was the most frequent crime in Maryland counties from 2023 to 2024.
     - There is a positive relationship between county population and vandalism incidents in a given Maryland county.
     
 ---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. This is the same for crimes like shoplifting and sexual assualt. 
