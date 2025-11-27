@@ -1,0 +1,294 @@
+---
+title: "R Notebook"
+output: html_notebook
+Name: Princess Tatsi
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(janitor)
+library(stringr)
+census_api_key("bf523cacbe0c8b02fe849fb1312a6a21c4124e7c")
+```
+
+```{r}
+md_county_pop <- read_csv("~/Documents/GitHub/jour-405/project/data/md_county_pop.csv")
+md_crime2023_2024 <- read_csv("~/Documents/GitHub/jour-405/project/data/md_crime2023-2024.csv")  # MD crime data 
+nibrs_2024 <- read_csv("~/Documents/GitHub/jour-405/project/data/nibrs_2024.csv") #National Incident based report for 2024; collects detailed crime data from law enforcement agencies across the United States
+
+```
+
+#rsw comment: this is how you import directly from Google Drive
+
+```{r}
+library(googledrive)
+drive_deauth()
+
+# Download the file
+drive_download("https://drive.google.com/file/d/1k_FB39acWRltE8v1gWvDgQ_2nmHgLSZy/view?usp=sharing",
+               path = "md_crime2.csv",
+               overwrite = TRUE)
+
+# Read it
+md_crime2 <- read_csv("md_crime2.csv")
+```
+
+--What does it contain and what time period does it cover?
+  Each row in md_county_pop represents the population size of every Maryland county. And each row in md_crime is an incident report of crime from 2023-2024. There are 761,022 rows and 14 columns in the original dataset. 
+  #rsw comment: how many rows, columns?
+
+--Which columns will be most important for your analysis?
+ ** From md_crime: county_name, incident date, offense_name, offense_category_name, location_name, crime_against
+ **  From md_county_pop: population
+
+--What's missing that you might need or want?
+ ** I need to join my md_county_pop dataframe with the md_crime by county so I have a single dataframe with the crime and population statistics; i can get median income from acs 2023. 
+ 
+```{r}
+#fix inconsistent spelling of St Mary's AND BALTIMORE in md-county_pop to match the md_crime
+md_county_pop <- md_county_pop |> 
+  mutate(
+    county = county |>
+      str_remove_all(",\\s*Maryland") |>     
+      str_remove_all("\\s+County\\b") |>    
+      str_replace_all("St\\.", "St") |>    
+      str_squish() |>                        
+      str_to_title()                      
+  )
+
+md_crime2023_2024 <- md_crime2023_2024 |> 
+rename(county = county_name) |>
+mutate(county = str_to_title(county)) 
+```
+
+ 
+#rsw comment: join the md_county_pop and md_crime
+ 
+```{r}
+md_crime_select <- md_crime2023_2024 |>
+select(county, incident_date, offense_name, offense_category_name, location_name, crime_against)
+
+md_crime_per_county <- md_crime_select |>
+group_by(county) |>
+summarise(
+  total_crime_per_county = n()
+)
+
+#FILL IN THE cleaning and JOIN SEQUENCE HERE. YOU'RE IN JOUR 472 - YOU CAN DO IT!!
+md_county_pop_crime <- md_county_pop |>
+left_join(md_crime_per_county, join_by(county))
+```
+ 
+** There is data missing from my joined dataframe and that's because there's entries in the county column for Carroll, Frederick and Unspecified. I extracted them into a separate dataframe 
+```{r}
+setdiff(md_county_pop$county, md_crime_select$county)
+setdiff(md_crime_select$county, md_county_pop$county)
+```
+
+```{r}
+out_of_join_data <- md_crime_select |>
+filter(county == "Carroll, Frederick" | county == "Not Specified")
+```
+
+**Loading median income for maryland counties from census data
+```{r}
+acs_2023 <- load_variables(2023, "acs5")  
+
+
+md_county_med_income <- get_acs(geography = "county",
+              variables = c(median_income = "B19001_001"),
+              year = 2023,
+              state = "MD",
+              geometry = TRUE)
+
+md_county_med_income
+
+md_county_med_income <- md_county_med_income |>
+rename(county = NAME) |>
+mutate(county = str_to_title(
+                     str_remove_all(county, ", Maryland") |> 
+                     str_replace("St.","St") |>
+                    str_remove_all(" County")
+                   )) 
+
+md_county_pop_crime_income <- md_county_med_income |>
+left_join(md_county_pop_crime, join_by(county)) |>
+rename(median_income = estimate)
+```
+
+** Create a joined dataframe with population, total crimes per county and total vandalism related crime per county
+```{r}
+md_crime_category_count <- md_crime_select |>
+group_by(county, offense_category_name) |>
+  summarise(
+    total_per_category = n()
+  ) |>
+arrange(desc(total_per_category)) 
+
+destruction_of_property <- md_crime_category_count |>
+filter(offense_category_name == "Destruction/Damage/Vandalism of Property") |>
+rename(total_destruction_per_county = total_per_category)
+
+
+md_county_pop_crime_income_vandal <- md_county_pop_crime_income |>
+left_join(destruction_of_property, join_by(county))
+
+md_county_pop_crime_income_vandal <- md_county_pop_crime_income_vandal |>
+clean_names() |>
+select(county, geoid, median_income, population, total_crime_per_county, total_destruction_per_county, geometry) |>
+mutate(vandalism_rate = (total_destruction_per_county / population) * 100000)
+```
+
+** This map visual shows Maryland counties and their vandalism rates. We can see that Prince George's, Baltimore and Baltimore city have the highest number of vandalism related crimes per capita
+```{r}
+library(RColorBrewer)
+library(paletteer)
+
+ggplot() +
+  geom_sf(data = md_county_pop_crime_income_vandal, aes(fill = vandalism_rate)) +
+  scale_fill_paletteer_c("grDevices::Purple-Yellow") +
+labs(title = "Prince George's county saw the highest total number of vandalism crimes per capita from 2023 to 2024") +
+  theme_minimal() +
+   theme(plot.title = element_text(size = 10)) 
+```
+
+--Select a relevant column and produce basic descriptive statistics on the mean, median, lowest and highest values.
+ 
+Stats for Vandalism: 
+```{r}
+md_county_pop_crime_income_vandal |>
+summarise(
+  mean_vandal= mean(total_destruction_per_county),
+  median_vandal = median (total_destruction_per_county),
+  min_vandal = min(total_destruction_per_county),
+  max_vandal = max(total_destruction_per_county), 
+  mean_income = mean(median_income),  
+  median_income = median(median_income), 
+  max_income = max (median_income)
+)
+```
+Helps me with the chunk below this one
+```{r}
+md_crime_select %>%
+count(county) %>%                        # returns: county | n
+summarise(total_crimes = sum(n, na.rm = TRUE))
+```
+
+#rsw comment - this chunk below totals TWO YEARS worth of data. Think about splitting that up 2023 and 2024
+
+** Creating crime summary for 2023
+```{r}
+crime_summary_2023 <- md_crime_select %>%
+  mutate(count = 1) %>%   # 1 incident per row
+  group_by(county, incident_date) %>%   # group by county AND year
+  filter(incident_date >= "2023-01-01",
+         incident_date <= "2023-12-31") |>
+  summarise(
+    total_crimes             = sum(count, na.rm = TRUE),
+    total_vandalism          = sum(count[offense_name == "Destruction/Damage/Vandalism of Property"], na.rm = TRUE),
+    total_shoplifting        = sum(count[offense_name == "Shoplifting"], na.rm = TRUE),
+    total_motor_theft        = sum(count[offense_name == "Motor Vehicle Theft"], na.rm = TRUE),
+     total_assault_offenses     = sum(count[offense_category_name == "Assault Offenses"], na.rm = TRUE),
+    total_theft_from_motor   = sum(count[offense_name == "Theft From Motor Vehicle"], na.rm = TRUE),
+    total_drug_nar_violations = sum(count[offense_name == "Drug/Narcotic Violations"], na.rm = TRUE),
+    .groups = "drop",
+    total_homicide_offenses = sum(count[offense_category_name == "Homicide Offenses"], na.rm = TRUE),
+    total_sexual_offenses = sum(count[offense_category_name == "Sex Offenses"], na.rm = TRUE)
+  ) %>%
+  mutate(
+    pct_vandalism          = total_vandalism / total_crimes * 100,
+    pct_shoplifting        = total_shoplifting / total_crimes * 100,
+    pct_motor_theft        = total_motor_theft / total_crimes * 100,
+    pct_assault_offenses     = total_assault_offenses / total_crimes * 100,
+    pct_theft_from_motor   = total_theft_from_motor / total_crimes * 100,
+    pct_drug_nar_violations = total_drug_nar_violations / total_crimes * 100,
+    pct_homicide_offense = total_homicide_offenses / total_crimes * 100,
+    pct_sexual_offense = total_sexual_offenses / total_crimes * 100
+  )
+```
+
+** Creating crime summary for 2024
+```{r}
+crime_summary_2024 <- md_crime_select %>%
+  mutate(count = 1) %>%   # 1 incident per row
+  group_by(county, incident_date) %>%   # group by county AND year
+  filter(incident_date >= "2024-01-01",
+         incident_date <= "2024-12-31") |>
+  summarise(
+    total_crimes             = sum(count, na.rm = TRUE),
+    total_vandalism          = sum(count[offense_name == "Destruction/Damage/Vandalism of Property"], na.rm = TRUE),
+    total_shoplifting        = sum(count[offense_name == "Shoplifting"], na.rm = TRUE),
+    total_motor_theft        = sum(count[offense_name == "Motor Vehicle Theft"], na.rm = TRUE),
+    total_assault_offenses     = sum(count[offense_category_name == "Assault Offenses"], na.rm = TRUE),
+    total_theft_from_motor   = sum(count[offense_name == "Theft From Motor Vehicle"], na.rm = TRUE),
+    total_drug_nar_violations = sum(count[offense_name == "Drug/Narcotic Violations"], na.rm = TRUE),
+    .groups = "drop", 
+     total_homicide_offenses = sum(count[offense_category_name == "Homicide Offenses"], na.rm = TRUE), 
+    total_sexual_offenses = sum(count[offense_category_name == "Sex Offenses"], na.rm = TRUE)
+  ) %>%
+  mutate(
+    pct_vandalism          = total_vandalism / total_crimes * 100,
+    pct_shoplifting        = total_shoplifting / total_crimes * 100,
+    pct_motor_theft        = total_motor_theft / total_crimes * 100,
+    pct_assault_offenses     = total_assault_offenses / total_crimes * 100,
+    pct_theft_from_motor   = total_theft_from_motor / total_crimes * 100,
+    pct_drug_nar_violations = total_drug_nar_violations / total_crimes * 100 ,
+    pct_homicide_offense = total_homicide_offenses / total_crimes * 100 ,
+    pct_sexual_offense = total_sexual_offenses / total_crimes * 100
+  )
+```
+
+
+Stats: 
+- Property crime was the highest type of crime in Maryland counties with 530,914 incidents from 2023 to 2024, according to data analysis. 
+- The county with the lowest total vandalism incidents had 41.
+- Prince George's county saw the highest number of vandalism incidents with 37,733. 
+- There's an average of 4,814 vandalism incidents across Maryland counties. Though half of Maryland counties have 1,082 incidents or less. This large discrepancy hints at outliers in the data set that conflate the occurance of destruction, damage and vandalism in Maryland counties. 
+- September 25th 2023 saw the biggest number of property destruction across Maryland counties. 
+- Kent (71 damage incidents to 14,650 residents) and Somerset, the least populous Maryland counties, have high counts of vandalism but on a much smaller scale when compared to Baltimore (28,057 incidents to 643,834 residents)
+---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. This is the same for crimes like shoplifting and sexual assualt. 
+
+#rsw comment: dont combine two nulls and two alternatives. Do it like this
+
+-- Null Hypothesis1:  
+- There is no relationship between county population and the number of vandalism incidents in a given Maryland county. 
+-- Alternative Hypothesis1: 
+- There is a positive relationship between county population and vandalism incidents in a given Maryland county.
+
+#rsw comment: this would be better if you joined the population data to the crime data and figured a per-capita vandalism rate and then posed a null that bigger counties (greater than the median county population) have a higher than average per-capita vandalism. alternative: bigger counties  (greater than the median county population) do not have a higher than average per-capita vandalism
+
+-- Null Hypothesis1:
+  - Vandalism was not the most frequent crime in Maryland counties from 2023 to 2024.
+-- Alternative Hypothesis1: 
+    -Vandalism generally was the most frequent crime in Maryland counties from 2023 to 2024.
+
+** Changing my columns to be numerical
+```{r}
+md_county_pop_crime_income_vandal$population <- as.numeric(md_county_pop_crime_income_vandal$population)
+md_county_pop_crime_income_vandal$vandalism_rate <- as.numeric(md_county_pop_crime_income_vandal$vandalism_rate)
+```
+
+** A correlation test found a significant positive relationship between population size and vandalism rate (p = .002), which indicates that more populous counties tend to have higher vandalism rates.”
+```{r}
+cor.test(md_county_pop_crime_income_vandal$population, md_county_pop_crime_income_vandal$vandalism_rate)
+```
+```{r}
+model <- lm(vandalism_rate ~ population + median_income, 
+            data = md_county_pop_crime_income_vandal)
+
+summary(model)
+```
+Interpretation: 
+- A p-value for population = 0.001825 means that population is a strong predictor of vandalism rate. The R-squared result tells me that about 36% of the variation in vandalism rate across Maryland counties is explained by population alone. 
+- This model shows that 49 to 44 percent f the variance in vandalism rates across Maryland counties is caused by variation in income and population. 
+- Surprisingly, a higher median income relates with higher vandalism rates, when population is controlled for.
+- 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
