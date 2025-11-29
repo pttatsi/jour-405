@@ -286,9 +286,9 @@ summary(model)
 ```
 Interpretation: 
 - A p-value for population = 0.001825 means that population is a strong predictor of vandalism rate. The R-squared result tells me that about 36% of the variation in vandalism rate across Maryland counties is explained by population alone. 
-- This model shows that 49 to 44 percent f the variance in vandalism rates across Maryland counties is caused by variation in income and population. 
+- This model shows that, according to the Multiple R-squared numbers, 49 to 44 percent of the variance in vandalism rates across Maryland counties is caused by difference in income and population. 
+- The intercept is above 100 percent which indicates that my independent variables, population and median income, sufficiently explain the outcome of higher vandalism rates in Maryland counties. 
 - Surprisingly, a higher median income relates with higher vandalism rates, when population is controlled for.
-- 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
