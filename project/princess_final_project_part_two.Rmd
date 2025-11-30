@@ -37,15 +37,11 @@ nibrs_2024 <- read_csv("~/Documents/GitHub/jour-405/project/data/nibrs_2024.csv"
  
 ```{r}
 #fix inconsistent spelling of St Mary's AND BALTIMORE in md-county_pop to match the md_crime
-md_county_pop <- md_county_pop |> 
-  mutate(
-    county = county |>
-      str_remove_all(",\\s*Maryland") |>     
-      str_remove_all("\\s+County\\b") |>    
-      str_replace_all("St\\.", "St") |>    
-      str_squish() |>                        
-      str_to_title()                      
-  )
+cleaned_md_county_pop <- md_county_pop |>
+mutate(county = str_replace_all(county, "BALTIMORE CITY, MARYLAND", "BALTIMORE CITY"))|>
+mutate(county = str_replace_all(county, "ST. MARY'S", "ST MARY'S")) |>
+mutate(county = str_to_title(county))
+
 
 md_crime2023_2024 <- md_crime2023_2024 |> 
 rename(county = county_name) |>
@@ -66,7 +62,7 @@ summarise(
 )
 
 #FILL IN THE cleaning and JOIN SEQUENCE HERE. YOU'RE IN JOUR 472 - YOU CAN DO IT!!
-md_county_pop_crime <- md_county_pop |>
+md_county_pop_crime <- cleaned_md_county_pop |>
 left_join(md_crime_per_county, join_by(county))
 ```
  

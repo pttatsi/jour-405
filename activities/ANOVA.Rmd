@@ -69,7 +69,7 @@ Write a couple of sentences describing the differences in SAT scores between typ
 Private universities have the highest average scores with the lowest variation from the mean when compared to public and community colleges. This means students at private universities score higher on standardized tests. 
 
 
-**Task 3: Write your answer here:**
+**Task 3: Write your answer here:** 
 
 
 ## Task 4: Visualize the Data
