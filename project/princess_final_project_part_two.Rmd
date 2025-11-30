@@ -26,7 +26,7 @@ nibrs_2024 <- read_csv("~/Documents/GitHub/jour-405/project/data/nibrs_2024.csv"
 
 --What does it contain and what time period does it cover?
   Each row in md_county_pop represents the population size of every Maryland county. And each row in md_crime is an incident report of crime from 2023-2024. There are 761,022 rows and 14 columns in the original dataset. 
-  #rsw comment: how many rows, columns?
+
 
 --Which columns will be most important for your analysis?
  ** From md_crime: county_name, incident date, offense_name, offense_category_name, location_name, crime_against
@@ -53,7 +53,7 @@ mutate(county = str_to_title(county))
 ```
 
  
-#rsw comment: join the md_county_pop and md_crime
+**join of the md_county_pop and md_crime
  
 ```{r}
 md_crime_select <- md_crime2023_2024 |>
@@ -158,16 +158,15 @@ summarise(
   max_income = max (median_income)
 )
 ```
-Helps me with the chunk below this one
+**Helps me with the chunk below this one
 ```{r}
 md_crime_select %>%
 count(county) %>%                        # returns: county | n
 summarise(total_crimes = sum(n, na.rm = TRUE))
 ```
 
-#rsw comment - this chunk below totals TWO YEARS worth of data. Think about splitting that up 2023 and 2024
 
-** Creating crime summary for 2023
+** Creating crime summary for 2023 for specific types of crimes I want to focus on
 ```{r}
 crime_summary_2023 <- md_crime_select %>%
   mutate(count = 1) %>%   # 1 incident per row
@@ -198,7 +197,7 @@ crime_summary_2023 <- md_crime_select %>%
   )
 ```
 
-** Creating crime summary for 2024
+** Creating crime summary for 2024 for specific types of crimes I want to focus on
 ```{r}
 crime_summary_2024 <- md_crime_select %>%
   mutate(count = 1) %>%   # 1 incident per row
@@ -239,7 +238,7 @@ Stats:
 - Kent (71 damage incidents to 14,650 residents) and Somerset, the least populous Maryland counties, have high counts of vandalism but on a much smaller scale when compared to Baltimore (28,057 incidents to 643,834 residents)
 ---Note: my surface analysis shows me that though more populous counties make it seem like vandalism occured more than it actually did from 2023 to 2024 in Maryland. it was still the top crime during that period even in smaller counties. But there seems to be a strong positive correlation/relationship between population and vandalism crime in maryland counties when compared to the maryland county population data. This is the same for crimes like shoplifting and sexual assualt. 
 
-#rsw comment: dont combine two nulls and two alternatives. Do it like this
+Hypothesis:
 
 -- Null Hypothesis1:  
 - There is no relationship between county population and the number of vandalism incidents in a given Maryland county. 
@@ -273,7 +272,6 @@ Interpretation:
 - A p-value for population = 0.001825 means that population is a strong predictor of vandalism rate. The R-squared result tells me that about 36% of the variation in vandalism rate across Maryland counties is explained by population alone. 
 - This model shows that, according to the Multiple R-squared numbers, 49 to 44 percent of the variance in vandalism rates across Maryland counties is caused by difference in income and population. 
 - The intercept is above 100 percent which indicates that my independent variables, population and median income, sufficiently explain the outcome of higher vandalism rates in Maryland counties. 
-- Surprisingly, a higher median income relates with higher vandalism rates, when population is controlled for.
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
