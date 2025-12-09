@@ -1,6 +1,6 @@
 ---
 title: "Multiple Regression Analysis: Maryland Voter Turnout"
-name: "YOUR NAME HERE"
+name: "Princess Tatsi"
 date: 8-24-2025
 ---
 
@@ -27,7 +27,11 @@ head(md_turnout)
 
 Before building our model, let's explore the data to understand the variables and their relationships. Examine the correlation matrix to see how the independent variables relate to each other and to the dependent variable (voter turnout). Which variables seem to be correlated? Are there any that are not correlated at all? Also look at the multiple scatterplots. Which variables seem to have a linear relationship with the dependent variable? Which do not?
 
-ANSWER HERE
+** There's a negative strong correlation of -0.75 between voter turnout and percent unemployed. This means higher unemployment rates are associated with lower voter turnout, and lower unemployment rates are associated with higher voter turnout. There's also a strong positive relationship between income and percent with bachelor's and higher, meaning as income goes up, so does the amount of people with bachelor's and higher. 
+
+There's a strong positive relationship between percent white and voter turnout, meaning as the percent of white residents increases, voter turnout tends to increase as well. But we also see that as population increases, the percentage of white residents does as well and vice versa. 
+
+Looking at the scatterplots, income and population have the weakest relationship to the dependent variable, voter turnout, because their lines are almost horizontal. Median age is neutral correlation, right at the benchmark. But the strongest relationships are with percent white and percent unemployed.   
 
 
 ```{r}
@@ -90,7 +94,9 @@ The coefficients tell us the estimated effect of each independent variable on th
 
 Examine the output of the model, checking the coefficients, residuals, and overall model fit. How well does this multiple variable model predict turnout? Do any of the variables seem to be insignificant? Is this a useful model, based on what you've seen? Why?
 
-ANSWER HERE
+ANSWER HERE 
+
+** The model tells us that income, median age and percent of white residents in Maryland counties explains the 80.2% of variance in our data, thus significantly influencing voter turnout across the state. Population, bachelor's or higher and percent unemployed seem to be insignificant in explaining our variance. This is a useful model because I can see how easy it would be to feel comfortable just using correlations but it doesn't give the full picture. For example, income had a weak positive correlation to turnout in the matrix but then turned out to be our most statistically significant variable. 
 
 ```{r}
 # Build initial model with all predictors
@@ -104,19 +110,20 @@ summary(initial_model)
 
 Create three alternative models by adding or removing variables to see if we can improve the model's performance. Turnout will always be the dependent variable, but you should alter the independent variables by removing or adding some. Then compare the models using adjusted R-squared values. Are any of the models significantly better than the others?
 
-ANSWER HERE
+** The full model is better than the rest at explaining where the variance comes from. The second-best, model 4, says our significant variables a little over 60% of the variance. It seems median_age and income hold most of the variance because they're the only significantly significant variables that are interchangeably in model 4 and 3, the next best options.  
 
 ```{r}
 # Model 2
-model2 <- lm(turnout ~ REPLACE ME, data = md_turnout)
+model2 <- lm(turnout ~ population + income + pct_bachelors_higher + 
+                   pct_unemployed, data = md_turnout)
 summary(model2)
 
 # Model 3
-model3 <- lm(turnout ~ REPLACE ME, data = md_turnout)
+model3 <- lm(turnout ~ population + pct_unemployed + median_age + pct_white, data = md_turnout)
 summary(model3)
 
 # Model 4
-model4 <- lm(turnout ~ REPLACE ME, data = md_turnout)
+model4 <- lm(turnout ~ population + income + pct_bachelors_higher + median_age, data = md_turnout)
 summary(model4)
 
 # Compare models
@@ -145,4 +152,4 @@ ggplot(model_comparison, aes(x = reorder(Model, Adjusted_R_squared), y = Adjuste
 
 Without using the words "multiple regression model", describe how you could use this analysis to cover an election or voter participation story.
 
-ANSWER HERE
+** Data analysis says that older White residents in Maryland are more likely to vote than younger residents or residents of other racial/ethnic groups. To explore this further, I would compare voter turnout across counties with different age profiles, focusing on younger populations and more diverse communities, to see if these trends hold or if there are exceptions. Highlighting counties with a median age under 30 could reveal areas where turnout patterns differ from the statewide trend.
