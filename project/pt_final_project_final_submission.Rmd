@@ -1,0 +1,605 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(janitor)
+library(lubridate)
+library(stringr)
+census_api_key("bf523cacbe0c8b02fe849fb1312a6a21c4124e7c")
+library(sf)
+options(scipen = 999)
+```
+
+Loading Data 
+```{r}
+md_county_pop <- read_csv("data/md_county_pop.csv")
+md_crime2023_2024 <- read_csv("data/md_crime2023-2024.csv")  # MD crime data 
+nibrs_2024 <- read_csv("data/nibrs_2024.csv") #National Incident based report for 2024; collects detailed crime data from law enforcement agencies across the United States
+```
+
+Fixing inconsistent spelling in md_county_pop and renaming column names in md_crime2023_2024
+```{r}
+#fix inconsistent spelling of St Mary's AND BALTIMORE in md-county_pop to match the md_crime
+cleaned_md_county_pop <- md_county_pop |>
+mutate(county = str_replace_all(county, "BALTIMORE CITY, MARYLAND", "BALTIMORE CITY"))|>
+mutate(county = str_replace_all(county, "ST. MARY'S", "ST MARY'S")) |>
+mutate(county = str_to_title(county))
+
+
+md_crime2023_2024 <- md_crime2023_2024 |> 
+rename(county = county_name) |>
+mutate(county = str_to_title(county)) 
+```
+
+Set Up
+```{r}
+#creating a new dataframe with select columns 
+md_crime_select <- md_crime2023_2024 |>
+select(county, incident_date, offense_name, offense_category_name, location_name, crime_against)
+
+#calculation total crime per county
+md_crime_per_county <- md_crime_select |>
+group_by(county) |>
+summarise(
+total_crime_per_county = n()
+)
+
+# join of the md_county_pop and md_crime_per_county; some data is lost for Carroll, Frederick and Non specified areas
+md_county_pop_crime <- cleaned_md_county_pop |>
+left_join(md_crime_per_county, join_by(county)) 
+
+#finding lost data and their total crime then broken down by row; just so I can account for all my data 
+out_of_join_data_1 <- anti_join(md_crime_per_county, cleaned_md_county_pop, join_by(county))
+
+out_of_join_data_2 <- md_crime_select |>
+filter(county == "Carroll, Frederick" | county == "Not Specified")
+```
+
+
+Loading Census data
+
+Census 1: Median age
+```{r}
+md_county_med_age <- get_acs(geography = "county",
+              variables = c(median_age = "B01002_001"),
+              year = 2023,
+              state = "MD")
+
+md_county_med_age <- md_county_med_age |>
+rename(county = NAME) |>
+mutate(county = str_to_title(
+                     str_remove_all(county, ", Maryland") |> 
+                     str_replace("St.","St") |>
+                    str_remove_all(" County")
+                   )) 
+```
+
+
+Census 2: Median Income 
+```{r}
+acs_2023 <- load_variables(2023, "acs5")  
+
+
+md_county_med_income <- get_acs(geography = "county",
+              variables = c(median_income = "B19001_001"),
+              year = 2023,
+              state = "MD")
+
+md_county_med_income
+
+#cleaning maryland county income data 
+md_county_med_income <- md_county_med_income |>
+rename(county = NAME) |>
+mutate(county = str_to_title(
+                     str_remove_all(county, ", Maryland") |> 
+                     str_replace("St.","St") |>
+                    str_remove_all(" County")
+                   )) 
+#joining income to population and total crime counts 
+md_county_pop_crime_income <- md_county_med_income |>
+left_join(md_county_pop_crime, join_by(county)) |>
+rename(median_income = estimate) |>
+clean_names() |>
+select(-variable)
+```
+
+Median income stats: 
+-- Mean (97,479.58), Median (40,957.5), Min(8,296) and Max (387,881)
+```{r}
+income_stat <- md_county_med_income |>
+summarise(
+  mean= mean(estimate),
+  median = median (estimate),
+  min = min(estimate),
+  max = max(estimate)
+)
+
+view(income_stat)
+```
+Median age stats: Mean(41.425), Median (40.3), Min (36.1) and Max(51.1)
+
+```{r}
+age_stats <- md_county_med_age |>
+summarise(
+  mean= mean(estimate),
+  median = median (estimate),
+  min = min(estimate),
+  max = max(estimate)
+)
+
+view(age_stats)
+```
+
+Population stats: Mean(194,611.9), Median (81,919.5), Min (14,650) and Max(806,469)
+```{r}
+pop_stats <- cleaned_md_county_pop |>
+summarise(
+  mean= mean(population),
+  median = median (population),
+  min = min(population),
+  max = max(population)
+)
+
+view(pop_stats)
+```
+
+Back to crime:
+
+** Property crime had the most amount of incidents in Maryland from 2023 to 2024
+```{r}
+md_crime_select |>
+group_by(crime_against) |>
+summarise(
+  count = n()
+) |>
+arrange(desc(count))
+
+```
+
+
+** Finding: The top offense is larcerny and theft, the top five counties with the most larceny/theft crimes are Baltimore, Prince George's, Montgomery, Baltimore City and Anne Arundel. In line with first finding that property crime accrued more crime incidences than crime against people and society.  
+```{r}
+#Creating a dataframe, grouping by offense category to calculate totals per county for each type of crime. 
+md_crime_category_count <- md_crime_select |>
+group_by(county, offense_category_name) |>
+  summarise(
+    total_per_category = n()
+  ) |>
+arrange(desc(total_per_category)) 
+
+#total crime per offense type and county
+md_crime_offense_count <- md_crime_select |>
+group_by(county, offense_name) |>
+  summarise(
+    total_per_category = n()
+  ) |>
+arrange(desc(total_per_category)) 
+```
+
+** Larceny and theft are the most common category of crime across Maryland counties, which makes sense as Maryland counties experience a high amount of property crime, more than crime against people and society. Within the larceny and theft category, I decided to look at shoplifting rates across Maryland counties, and Baltimore, the third populous md county, shows up as the county with the highest shoplifting rates. 
+
+```{r}
+md_baltimore_crime <- md_crime_select |>
+filter(county== "Baltimore") 
+
+md_baltimore_crime|> 
+group_by(crime_against) |>
+summarise(
+  count= n()
+) |>
+arrange(desc(count))
+```
+
+```{r}
+md_anne_arundel_crime <- md_crime_select |>
+filter(county== "Anne Arundel") 
+
+md_anne_arundel_crime|> 
+group_by(crime_against) |>
+summarise(
+  count= n()
+) |>
+arrange(desc(count))
+```
+
+** Creating dataframe for maryland counties population, total crime per county, median income, median age and total shoplifting per county. Then I calculate rates per county. The results made me more interested in looking at Baltimore, it has the highest shoplifting rate over the observed period and a large difference compared to other counties with high rates. For example, Anne Arundel's shoplifting rate at 16.2, is 9.8 points behind Baltimore. 
+
+```{r}
+#total shoplifting offense per county; Baltimore and Montgomery have the highest total shoplifting number
+total_shoplifting_crime <- md_crime_offense_count |>
+filter(offense_name == "Shoplifting") |>
+rename(total_shoplifting_per_county = total_per_category)
+
+#join shoplifting data to population and income data 
+md_county_pop_crime_income_shop <- md_county_pop_crime_income |>
+left_join(total_shoplifting_crime, join_by(county))
+
+#Do some clean-up and calculate rates 
+md_county_pop_crime_income_shop <- md_county_pop_crime_income_shop |>
+clean_names() |>
+select(county, geoid, median_income, population, total_crime_per_county, total_shoplifting_per_county) |>
+mutate(shoplifting_rate = (total_shoplifting_per_county / population) * 1000)
+
+```
+
+```{r}
+md_county_pop_crime_income_shop_age <- md_county_med_age |>
+left_join(md_county_pop_crime_income_shop, join_by(county)) |>
+rename(median_age = estimate) |>
+clean_names() |>
+  select(-variable, -moe, -geoid_2)
+```
+
+** Break down Baltimore shoplifting 2023 
+
+```{r}
+#Creating a monthly shoplifting totals per county, create year/month 
+md_monthly_crime_2023 <- md_crime_select |>
+filter(incident_date >= as.Date("2023-01-01"),
+      incident_date <= as.Date("2023-12-31")) |>
+filter(str_detect(offense_name, "Shoplifting")) |>
+mutate(total_shoplifting_crime = n())
+
+#calculate percentages for 2023
+month_total_2023 <- md_monthly_crime_2023 |> 
+mutate(
+    month = month(incident_date),
+    month_year = paste0(month.abb[month], " 2023")   # <-- your desired "Jan 2023"
+  ) |>
+group_by(county, month, month_year) |>
+mutate(monthly_shop = n()) |>
+select(-incident_date, -offense_name, -offense_category_name, -location_name, -crime_against) |>
+  unique() |>
+  rename(date = month_year)|>
+mutate(
+  shoplifting_perc = (monthly_shop/total_shoplifting_crime) * 100
+)
+
+
+```
+
+
+Calculate shoplifting percentage for Baltimore 2024 
+```{r}
+#do the same thing and calculate percentages of whole for 2024
+md_monthly_crime_2024 <- md_crime_select |>
+filter(incident_date >= as.Date("2024-01-01"),
+      incident_date <= as.Date("2024-12-31")) |>
+filter(str_detect(offense_name, "Shoplifting")) |>
+mutate(total_shoplifting_crime = n())
+
+  
+month_total_2024 <- md_monthly_crime_2024 |> 
+mutate(
+    month = month(incident_date),
+    month_year = paste0(month.abb[month], " 2024") ) |>
+group_by(county, month, month_year) |>
+mutate(monthly_shop = n()) |>
+select(-incident_date, -offense_name, -offense_category_name, -location_name, -crime_against) |>
+  unique() |>
+  rename(date = month_year)|>
+mutate(
+  shoplifting_perc = (monthly_shop/total_shoplifting_crime) * 100
+)
+```
+
+Create combines dataframes for 2023-2024 to plot for Baltimore, Anne Arundel and Montgomery
+```{r}
+baltimore_2024_shop_crime<-month_total_2024 |>
+filter(county == "Baltimore") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county)
+
+
+baltimore_2023_shop_crime <- month_total_2023 |>
+filter(county == "Baltimore") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county)
+
+anne_arundel_2023_shop_crime <- month_total_2023 |> 
+ filter(county == "Anne Arundel") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county) 
+
+anne_arundel_2024_shop_crime <- month_total_2024 |> 
+ filter(county == "Anne Arundel") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county) 
+
+moco_2023_shop_crime <- month_total_2023 |> 
+ filter(county == "Montgomery") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county) 
+
+moco_2024_shop_crime <- month_total_2024 |> 
+ filter(county == "Montgomery") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county) 
+
+pg_2023_shop_crime <- month_total_2023 |> 
+ filter(county == "Prince George's") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county) 
+
+pg_2024_shop_crime <- month_total_2024 |> 
+ filter(county == "Prince George's") |>
+    ungroup() |>
+   mutate(date = my(date)) |>
+  select(-month, -county) 
+
+#combining baltimore data for visual comparison 
+combined_baltimore <- baltimore_2023_shop_crime |>
+full_join(baltimore_2024_shop_crime)
+
+combined_baltimore <- combined_baltimore %>%
+  mutate(
+    year = factor(format(date, "%Y")),         
+    month = factor(format(date, "%b"), levels = month.abb) 
+  )
+#combining anne arundel data for visual comparison 
+combined_anne_arundel <- anne_arundel_2023_shop_crime |>
+full_join(anne_arundel_2024_shop_crime)
+
+combined_anne_arundel <- combined_anne_arundel |>
+mutate(
+    year = factor(format(date, "%Y")),         
+    month = factor(format(date, "%b"), levels = month.abb) 
+  )
+#combining montgomery data for visual comparison 
+combined_moco <- moco_2023_shop_crime |>
+full_join(moco_2024_shop_crime)
+
+combined_moco <- combined_moco %>%
+  mutate(
+    year = factor(format(date, "%Y")),         
+    month = factor(format(date, "%b"), levels = month.abb) 
+  )
+
+combined_pg <- pg_2023_shop_crime |>
+full_join(pg_2024_shop_crime)
+
+combined_pg <- combined_pg %>%
+  mutate(
+    year = factor(format(date, "%Y")),         
+    month = factor(format(date, "%b"), levels = month.abb) 
+  )
+```
+
+Visual -- Graph 
+
+Observation: 
+
+The visualization shows that Baltimore’s monthly shoplifting rates are consistently and substantially higher than those of other Maryland counties over the same period. Baltimore’s lowest observed shoplifting percentage is approximately 1.9%, which exceeds the highest rates observed in Anne Arundel County (0.1%) and Montgomery County (1.2%). In other words, even at its lowest point, Baltimore’s shoplifting rate remains higher than the peak rates of other counties. It would be interesting to expand the graph with more years before 2023 and with 2025's data to see if Baltimore has been on a general decrease in terms shoplifting crime 
+
+Despite this elevated baseline, shoplifting in Baltimore shows an overall downward trend. After reaching a peak of approximately 2.9% in August 2023, the rate declines to about 2.4% by August 2024, a modest but noticeable reduction. However, while shoplifting decreased toward the end of 2023, thus contributing to a lower starting point in early 2024, the rates rise again as the year progresses. This pattern suggests that although overall shoplifting levels in Baltimore appear to be decreasing, there may be recurring or structural factors that continue to drive periodic increases.
+
+Additionally, Montgomery County and Anne Arundel County both experience sharp declines in shoplifting rates at certain points during 2023 or 2024, despite already having relatively low baseline levels. The visualization also reveals overlapping or similar monthly patterns across the two years, indicating possible seasonal or cyclical effects in shoplifting activity.
+
+```{r}
+ggplot(combined_baltimore, aes(x = month, y = shoplifting_perc, group = year, color = year)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  scale_y_continuous(n.breaks = 10) + 
+  labs(
+    title = "Baltimore monthly Shoplifting Percentage: 2023 vs 2024",
+    x = "Month",
+    y = "Percentage",
+    color = "Year"
+  ) +
+  theme_minimal()
+```
+
+Here, we see shoplifting percentages went up in Anne Arundel county in 2024, meaning Anne Arundel county accounted for a larger proportion of shoplifting crimes in 2024 than it did in the previous year. Though in 2023, the county saw a dramatic drop in shoplifting crime between June and July. But that dramatically changes in August with a new high that only slightly decreased by approximately 0.18% in 2024. 
+
+```{r}
+ggplot(combined_anne_arundel, aes(x = month, y = shoplifting_perc, group = year, color = year)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  scale_y_continuous(n.breaks = 10) + 
+  labs(
+    title = "Anne Arundel monthly Shoplifting Percentage: 2023 vs 2024",
+    x = "Month",
+    y = "Percentage",
+    color = "Year"
+  ) +
+  theme_minimal()
+```
+
+In Moco, shoplifting crime steadily goes up when the year begins, it hits extreme highs and lows but always ends on a low number in our sample. 
+```{r}
+ggplot(combined_moco, aes(x = month, y = shoplifting_perc, group = year, color = year)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  scale_y_continuous(n.breaks = 10) + 
+  labs(
+    title = "Montgomery monthly Shoplifting Percentage: 2023 vs 2024",
+    x = "Month",
+    y = "Percentage",
+    color = "Year"
+  ) +
+  theme_minimal()
+```
+** Another quick comparison to show that all counties that fit a similar profile to Baltimore, rich and populous, have lesser shoplifting percentages 
+
+```{r}
+ggplot(combined_pg, aes(x = month, y = shoplifting_perc, group = year, color = year)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  scale_y_continuous(n.breaks = 10) + 
+  labs(
+    title = "PG monthly Shoplifting Percentage: 2023 vs 2024",
+    x = "Month",
+    y = "Percentage",
+    color = "Year"
+  ) +
+  theme_minimal()
+```
+
+
+Significance testing: 
+
+H₀: ρ = 0 (there is no linear correlation between the variables)
+H₁: ρ ≠ 0 (there is a linear correlation between the variables)
+
+Visual --> Correlation between shoplifting rate and median income; the strong positive relationship means as median income increases, shoplifting rates tends to increase as well. Therefore, we accept the null hypothesis that a clear linear relationship exists between the variables. 
+
+```{r}
+ggplot(
+  md_county_pop_crime_income_shop_age,
+  aes(x = median_income, y = shoplifting_rate)
+) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    x = "Median Income",
+    y = "Per Capita rate for shoplifting",
+    title = "Strong positive relationship between median income and shoplifting rate"
+  )
+```
+```{r}
+cor.test(md_county_pop_crime_income_shop_age$median_income, md_county_pop_crime_income_shop_age$shoplifting_rate)
+```
+
+** The weak negative correlation between age and shoplifting rates means as median age increases, shoplifting rates tend to decrease in this sample. However, this relationship is not statistically significant (p = 0.116), way bigger than 0.05. Thus, we do reject the null hypothesis but test significance furthur 
+```{r}
+ggplot(
+  md_county_pop_crime_income_shop_age,
+  aes(x = median_age, y = shoplifting_rate)
+) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    x = "Median age",
+    y = "Per Capita rate for shoplifting",
+    title = "Negative weak linear relationship between median age and shoplifting rate "
+  )
+```
+
+```{r}
+cor.test(md_county_pop_crime_income_shop_age$median_age, md_county_pop_crime_income_shop_age$shoplifting_rate)
+```
+** Positive linear relationship between population and shoplifting rate. This is expected because higher populations generally tends to mean there is an increase of other things, more is happening. Accept null hypothesis. The cor test shows high statistical significance, p > 0.0003
+
+```{r}
+ggplot(
+  md_county_pop_crime_income_shop_age,
+  aes(x = population, y = shoplifting_rate)
+) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    x = "Population",
+    y = "Per Capita rate for shoplifting",
+    title = "Positive linear relationship between population and shoplifting rate"
+  )
+```
+
+```{r}
+cor.test(md_county_pop_crime_income_shop_age$population, md_county_pop_crime_income_shop_age$shoplifting_rate)
+```
+
+-> Multiple Linear regression 
+
+-> Null Hypothesis:: In Maryland counties, the shoplifting per capita rate is not linearly associated with any of the predictors: median income, population and median age. 
+
+-> Alternative Hypothesis:: In Maryland counties, the shoplifting per capita rate is linearly associated with at least one of the predictors: median income, population and/or median age.
+
+--> Conclusion: 
+
+```{r}
+initial_model <- lm(shoplifting_rate ~ population + median_income + median_age, 
+            data =md_county_pop_crime_income_shop_age)
+
+summary(initial_model)
+```
+Creating models 
+
+```{r}
+# Model 2
+model2 <- lm(shoplifting_rate ~ population + median_income, data = md_county_pop_crime_income_shop_age)
+summary(model2)
+
+# Model 3
+model3 <- lm(shoplifting_rate ~ median_income + median_age, data = md_county_pop_crime_income_shop_age)
+summary(model3)
+
+# Model 4
+model4 <- lm(shoplifting_rate ~ population + median_age, data = md_county_pop_crime_income_shop_age)
+summary(model4)
+
+# Compare models
+cat("Model 1 (Full model) - Adjusted R-squared:", summary(initial_model)$adj.r.squared, "\n")
+cat("Model 2 - Adjusted R-squared:", summary(model2)$adj.r.squared, "\n")
+cat("Model 3 - Adjusted R-squared:", summary(model3)$adj.r.squared, "\n")
+cat("Model 4 - Adjusted R-squared:", summary(model4)$adj.r.squared, "\n")
+
+# Create comparison chart
+model_names <- c("Full model", "Model 2", "Model 3", "Model 4")
+adj_r_squared <- c(summary(initial_model)$adj.r.squared,
+                   summary(model2)$adj.r.squared,
+                   summary(model3)$adj.r.squared,
+                   summary(model4)$adj.r.squared)
+
+model_comparison <- data.frame(Model = model_names, Adjusted_R_squared = adj_r_squared)
+ggplot(model_comparison, aes(x = reorder(Model, Adjusted_R_squared), y = Adjusted_R_squared)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Model Comparison by Adjusted R-squared",
+       x = "Model")
+```
+---> Model 2, comparing population and median income, explains 50% of the variance in my sample, more than any other model. 
+
+Simple Linear Regression: 
+
+** For every $1 increase in median income, shoplifting rate increases by ~0.00003257 units. This relationship is consistent with the positive linear association observed in the earlier correlation analysis. 
+
+** According to our multiple R-squared, 48% of variance in our data can be explained by median income, which is a statistically significant at p = 0.0002, meaning the independent variable is associated with rising shoplifting rates. On the other hand, 
+
+```{r}
+simple_model <- lm(shoplifting_rate ~ median_income, data=md_county_pop_crime_income_shop_age)
+
+summary(simple_model)
+```
+```{r}
+simple_model_pop <- lm(shoplifting_rate ~ population, data=md_county_pop_crime_income_shop_age)
+
+summary(simple_model_pop)
+```
+
+```{r}
+simple_model_age <- lm(shoplifting_rate ~ median_age, data=md_county_pop_crime_income_shop_age)
+
+summary(simple_model_age)
+```
+
+--> Interpretation: 
+
+The strongest predictor for shoplifting rates is median income, followed closely by population. According to my tests, median age is the weakest, only accounting for 10% of variance. 
+
+
+--> Story idea and conclusion: 
+A final section with a draft story pitch, backed by your analysis. It needs to discuss your main findings, potential problems, and provide a reporting plan 
+
+---> Quantitative analysis shows a statistically significant positive relationship between shoplifting rates and both median income and population across Maryland counties. In general, counties with higher median incomes and larger populations tend to experience higher shoplifting rates. However, Baltimore stands out as a notable outlier. Despite being the third most populous and one of the wealthiest counties in the state, Baltimore’s shoplifting rates and percentages far exceed those of similarly large and affluent counties such as Montgomery County and Prince George’s County.
+
+---> This discrepancy says that income and population alone do not fully explain shoplifting patterns in Maryland, particularly Baltimore. While wealthier areas may present more opportunities for theft, such as higher retail density or luxury stores, Baltimore’s consistently high rates indicate that additional social, demographic, or structural factors may be influencing these outcomes. 
+
+----> These findings raise important questions that extend beyond what the current dataset can answer. Why do wealthier areas in this sample experience higher shoplifting rates? Is shoplifting in Baltimore driven primarily by non-residents traveling into the area to target high-end retail stores? Or are local socioeconomic conditions playing a larger role? But first, which types of properties or stores are most affected by shoplifting? and which are less targeted? What items are primarily being stolen? Is the motivation economic, opportunistic, or simply the thrill? Age was weakly correlated to shoplifting rates but I still wonder if shoplifting could be dependent on a higher concentration of younger people (I couldn't find the variable for 18 and under in census data). 
+
+---> Although the data shows a pattern in Baltimore, understanding uncovering all active independent variables requires more detailed investigation such as including qualitative data, store-level crime reports, interviewing people who have been arrested for shoplifting in Baltimore, talking to store owners and employees to ask what patterns have they seen in who steals and what they steal? Why do they think theft has become so prevalent in Baltimore, the third richest Maryland county? 
+
+----> Limits: The current analysis primarily relies on county-level data, which limits the ability to capture individual behavior. Every active independent variable such as race, ethnicity, gender and poverty were not directly included in the models but may significantly influence observed trends.
+
+----> With the end of December 2025 fast-nearing, Baltimore County’s 2025 crime report will be released soon. This is a timely opportunity to revisit shoplifting trends to assess whether recent patterns have continued or shifted. That is my reporting plan, use the new and old data with further investigation (interviews with store owners, residents, law enforcers etc...) to see if the shoplifting is improving and if not, why so? 
+
